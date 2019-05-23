@@ -1,5 +1,6 @@
 # System files
 *.DS_Store
+*.pdf
 
 # History files
 .Rhistory
