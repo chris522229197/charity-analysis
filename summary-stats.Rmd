@@ -7,4 +7,109 @@ date: '`r Sys.Date()`'
 output: pdf_document
 ---
 
+```{r setup, warning=FALSE, message=FALSE}
+library(dplyr)
+library(kableExtra)
+```
 
+```{r load_data, warning=FALSE, message=FALSE}
+# Load and preprocess data
+df <- read.csv("data/charitable_withdummyvariables.csv")
+outcome_variable_name <- "out_gavedum"
+treatment_variable_name <- c("treatment", "treat_ratio2", "treat_ratio3")
+cont_covariates <- c("pwhite", "pblack", "ave_hh_sz", "median_hhincome", "pop_propurban")
+bin_covariates <- c("female", "couple", "red0", "redcty")
+covariate_names <- c(cont_covariates, bin_covariates)
+
+cont_cov_descps <- c("Proportion of white", 
+                     "Proportion of black", 
+                     "Average household size", 
+                     "Median household income", 
+                     "Proportion of urban population")
+
+bin_cov_descps <- c("Female", "Couple", "Red state", "Red county")
+
+covariate_descps <- c(cont_cov_descps, bin_cov_descps)
+
+df[df == -999] <- NA
+df <- df %>% 
+  dplyr::select(c(outcome_variable_name, 
+                  treatment_variable_name, 
+                  covariate_names)) %>% 
+  dplyr::rename(Y = out_gavedum) %>%
+  na.omit()
+df$median_hhincome <- df$median_hhincome / 10000
+
+# Collect the treatment into one variable
+df <- df %>% mutate(treatment_lvl = case_when(treatment == 0 ~ 0, 
+                                              treat_ratio2 == 1 ~ 2, 
+                                              treat_ratio3 == 1 ~ 3, 
+                                              TRUE ~ 1))
+```
+
+
+```{r summary_tab, warning=FALSE, message=FALSE}
+get_mean_sd <- function(x) {
+  return(paste0(signif(mean(x), 3), " (", signif(sd(x), 3), ")"))
+}
+
+get_N_prop <- function(x) {
+  N <- sum(x)
+  prop <- sum(x) / length(x)
+  return(paste0(format(N, big.mark = ","), " (", signif(prop * 100, 3), "%)"))
+}
+
+# Summary statistics for covariates by outcome variable Y
+stats_by_y <- function(dataset, features) {
+  y0 <- dataset %>% dplyr::filter(Y == 0)
+  y1 <- dataset %>% dplyr::filter(Y == 1)
+  
+  y0_colname <- paste0("No donation (N = ", format(nrow(y0), big.mark = ","), ")")
+  y1_colname <- paste0("Donation (N = ", format(nrow(y1), big.mark = ","), ")")
+  
+  df_lst <- list()
+  for (feature in features) {
+    if (length(unique(dataset[ , feature])) > 2) {
+      y0_stat <- get_mean_sd(y0[, feature])
+      y1_stat <- get_mean_sd(y1[, feature])
+    } else {
+      y0_stat <- get_N_prop(y0[ , feature])
+      y1_stat <- get_N_prop(y1[, feature])
+    }
+    summary_df <- data.frame("feature" = feature, 
+                             "y0_stat" = y0_stat, 
+                             "y1_stat" = y1_stat, 
+                             stringsAsFactors = FALSE)
+    colnames(summary_df)[2:3] <- c(y0_colname, y1_colname)
+    df_lst[[feature]] <- summary_df
+  }
+  return(Reduce(rbind, df_lst))
+}
+
+# Generate summary stats for each treatment/control group
+treat_subgrps <- lapply(0:3, function(grp) df %>% filter(treatment_lvl == grp))
+summary_subgrps <- lapply(treat_subgrps, function(df) stats_by_y(df, covariate_names))
+summary_tab <- Reduce(cbind, summary_subgrps)
+
+# Remove unnecessary columns
+summary_tab <- summary_tab[ , -which(colnames(summary_tab) == "feature")[-1]]
+
+# Rename
+colnames(summary_tab)[1] <- "Covariate"
+summary_tab$Covariate <- covariate_descps
+
+# Format column group names for treatment/control group
+grp_N <- sapply(treat_subgrps, function(df) format(nrow(df), big.mark = ","))
+grp_names <- paste0(c("Control", "Treatment 1:1", "Treatment 2:1", "Treatment 3:1"), 
+                    " (N = ", grp_N, ")")
+summary_tab_header <- c(1, rep(2, length(treat_subgrps)))
+names(summary_tab_header) <- c(" ", grp_names)
+
+
+kable(summary_tab, "latex", booktabs = T, 
+      caption = "Summary statstics by treatment and outcome. Mean (standard deviation) is 
+      reported for each continuous covariate. Count (percentage) is reported for each 
+      categorical covaraite.") %>% 
+  add_header_above(summary_tab_header) %>%
+  landscape()
+```
