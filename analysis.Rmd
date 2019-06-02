@@ -1,0 +1,8 @@
+---
+title: "Econ 293 Final Project Analysis Report"
+author: 
+- Chris Lin, Joseph Son
+- (clin17@stanford.edu, joeson@stanford.edu)
+date: '`r Sys.Date()`'
+output: pdf_document
+---
