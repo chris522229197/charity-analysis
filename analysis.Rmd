@@ -17,11 +17,11 @@ data_03 <- split_control_treated(0, 3, df, covariate_names)
 ```
 
 ```{r}
-results_forests_01 <- compare_forests(data_01$X, data_01$W, data_01$Y, 50)
+results_forests_01 <- compare_forests(data_01$X, data_01$W, data_01$Y, data_01$ID, 50)
 results_forests_01$compare <- "0 vs 1"
-results_forests_02 <- compare_forests(data_02$X, data_02$W, data_02$Y, 50)
+results_forests_02 <- compare_forests(data_02$X, data_02$W, data_02$Y, data_02$ID, 50)
 results_forests_02$compare <- "0 vs 2"
-results_forests_03 <- compare_forests(data_03$X, data_03$W, data_03$Y, 50)
+results_forests_03 <- compare_forests(data_03$X, data_03$W, data_03$Y, data_03$ID, 50)
 results_forests_03$compare <- "0 vs 3"
 results_forests <- Reduce(rbind, list(results_forests_01, 
                                       results_forests_02, 

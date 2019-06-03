@@ -34,3 +34,5 @@ df <- df %>% mutate(treatment_lvl = case_when(treatment == 0 ~ 0,
                                               treat_ratio2 == 1 ~ 2, 
                                               treat_ratio3 == 1 ~ 3, 
                                               TRUE ~ 1))
+# Add ID to the data frame
+df$ID <- 1:nrow(df)

@@ -13,21 +13,26 @@ library(rpart)
 library(rpart.plot)
 library(treeClust)
 library(car)
+library(glmnet)
 
 # Split entire data set into interested treatment group
 split_control_treated <- function(control_lab, treated_lab, df, 
                                   covariates, outcome_var = "Y", 
-                                  treatment_var = "treatment_lvl") {
+                                  treatment_var = "treatment_lvl", 
+                                  id_var = "ID") {
   colnames(df)[colnames(df) == outcome_var] <- "Y"
   colnames(df)[colnames(df) == treatment_var] <- "W"
+  colnames(df)[colnames(df) == id_var] <- "ID"
+  
   subdf <- df %>% filter(W %in% c(control_lab, treated_lab))
   subdf$W[subdf$W == control_lab] <- 0
   subdf$W[subdf$W == treated_lab] <- 1
-  subdf <- subdf %>% select_(.dots = c("Y", "W", covariates))
+  subdf <- subdf %>% select_(.dots = c("Y", "W", "ID", covariates))
   Y <- subdf[ , "Y"]
   W <- subdf[ , "W"]
+  ID <- subdf[ , "ID"]
   X <- as.matrix(subdf[ , covariates, drop = FALSE])
-  return(list("df" = subdf, "Y" = Y, "W" = W, "X" = X))
+  return(list("df" = subdf, "Y" = Y, "W" = W, "X" = X, "ID" = ID))
 }
 
 convert_df <- function(dataset, ctrl, trt) {
@@ -269,7 +274,7 @@ rloss <- function(Y_tilde, W_tilde, estimated_tau) {
 }
 
 # Compute the OOB estimates and R losses for different forest-based models
-compare_forests <- function(X, W, Y, num_trees = 50) {
+compare_forests <- function(X, W, Y, ID, num_trees = 50) {
   # HTE estimates with the models
   message("Fitting the S-learner forest...")
   sf <- fit_sf(X, W, Y, num_trees)
@@ -304,7 +309,7 @@ compare_forests <- function(X, W, Y, num_trees = 50) {
     output_df <- data.frame("estimate" = estimates[[i]], 
                             "rloss" = rls[[i]], 
                             "learner" = learners[[i]], 
-                            "Y" = Y, "W" = W)
+                            "Y" = Y, "W" = W, "ID" = ID)
     output_df <- cbind(output_df, as.data.frame(X))
     output_lst[[i]] <- output_df
   }
