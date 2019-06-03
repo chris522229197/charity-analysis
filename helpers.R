@@ -73,7 +73,7 @@ ate_condmean_ols <- function(dataset) {
 
 # Calculate propensity score
 
-prop_score <- function(dataset) {
+p_logistic <- function(dataset) {
   X <- dataset %>% select(-c(Y,W))
   p_logistic.fit <- glm(dataset$W ~ as.matrix(X), family = "binomial")
   p_logistic <- predict(p_logistic.fit, type = "response")
@@ -142,23 +142,23 @@ calculate_ATE <- function(df1, df2, df3, ratio = 1) {
   tauhat_ols3 <- ate_condmean_ols(df3)
   
   # Calculate propensity score for use in IPW and AIPW
-  p1 <- prop_score(df1)
-  p2 <- prop_score(df2)
-  p3 <- prop_score(df3)
+  p_logistic1 <- p_logistic(df1)
+  p_logistic2 <- p_logistic(df2)
+  p_logistic3 <- p_logistic(df3)
   
   # ATE using IPW
-  tauhat_logistic_ipw1 <- ipw(df1, p1)
-  tauhat_logistic_ipw2 <- ipw(df2, p2)
-  tauhat_logistic_ipw3 <- ipw(df3, p3)
+  tauhat_logistic_ipw1 <- ipw(df1, p_logistic1)
+  tauhat_logistic_ipw2 <- ipw(df2, p_logistic2)
+  tauhat_logistic_ipw3 <- ipw(df3, p_logistic3)
   
   # ATE using AIPW
-  tauhat_logistic_aipw1 <- aipw_ols(df1, p1)
-  tauhat_logistic_aipw2 <- aipw_ols(df2, p2)
-  tauhat_logistic_aipw3 <- aipw_ols(df3, p3)
+  tauhat_logistic_ols_aipw1 <- aipw_ols(df1, p_logistic1)
+  tauhat_logistic_ols_aipw2 <- aipw_ols(df2, p_logistic2)
+  tauhat_logistic_ols_aipw3 <- aipw_ols(df3, p_logistic3)
 
-  plot_calibration(p1, df1$W)
-  plot_calibration(p2, df2$W)
-  plot_calibration(p3, df3$W)
+  plot_calibration(p_logistic1, df1$W)
+  plot_calibration(p_logistic2, df2$W)
+  plot_calibration(p_logistic3, df3$W)
 
   all_estimators = rbind(
     RCT_gold_standard_1 = tauhat_rct1,
@@ -170,9 +170,9 @@ calculate_ATE <- function(df1, df2, df3, ratio = 1) {
     IPW_logistic_1 = tauhat_logistic_ipw1,
     IPW_logistic_2 = tauhat_logistic_ipw2,
     IPW_logistic_3 = tauhat_logistic_ipw3,
-    AIPW_logistic_1 = tauhat_logistic_aipw1,
-    AIPW_logistic_2 = tauhat_logistic_aipw2,
-    AIPW_logistic_3 = tauhat_logistic_aipw3
+    AIPW_logistic_ols_1 = tauhat_logistic_ols_aipw1,
+    AIPW_logistic_ols_2 = tauhat_logistic_ols_aipw2,
+    AIPW_logistic_ols_3 = tauhat_logistic_ols_aipw3
   )
   all_estimators <- data.frame(all_estimators)
   all_estimators <- add_rownames(all_estimators, "Estimator")
