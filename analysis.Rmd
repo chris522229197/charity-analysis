@@ -29,7 +29,7 @@ results_forests <- Reduce(rbind, list(results_forests_01,
 ```
 
 ```{r ATE, warning=FALSE, message=FALSE}
-calculate_ATE(df, 1)
-calculate_ATE(df, 0.2)
+calculate_ATE(data_01$df, data_02$df, data_03$df, 1)
+calculate_ATE(data_01$df, data_02$df, data_03$df, 0.5)
 ```
 

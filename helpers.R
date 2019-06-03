@@ -36,15 +36,6 @@ split_control_treated <- function(control_lab, treated_lab, df,
   return(list("df" = subdf, "Y" = Y, "W" = W, "X" = X, "ID" = ID))
 }
 
-convert_df <- function(dataset, ctrl, trt) {
-  dataset <- dataset %>%
-    filter(treatment_lvl == ctrl | treatment_lvl == trt) %>%
-    mutate(W = case_when(treatment_lvl == ctrl ~ 0,
-                         treatment_lvl == trt ~ 1)) %>%
-    select(-c(treatment_lvl,treatment,treat_ratio2,treat_ratio3))
-  return (dataset)
-}
-
 # Difference of the mean outcome between treated and control group
 # This is the classical way to find ATE in a randomized trial
 
@@ -135,13 +126,10 @@ aipw_ols <- function(dataset, p) {
 # For ATE, show the results of different methods. Talk about how they compare to each other.
 # Sensitivity analysis with data set reduction.
 
-calculate_ATE <- function(df, ratio = 1) {
-  df <- df %>% sample_n(nrow(df)*ratio)
-  
-  # Convert to binary treatment
-  df1 <- convert_df(df, 0, 1)
-  df2 <- convert_df(df, 0, 2)
-  df3 <- convert_df(df, 0, 3)
+calculate_ATE <- function(df1, df2, df3, ratio = 1) {
+  df1 <- df1 %>% sample_n(nrow(df1)*ratio)
+  df2 <- df2 %>% sample_n(nrow(df2)*ratio)
+  df3 <- df3 %>% sample_n(nrow(df3)*ratio)
   
   # Calculate RCT baseline
   tauhat_rct1 <- difference_in_means(df1)
