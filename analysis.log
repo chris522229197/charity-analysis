@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  2 JUN 2019 16:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  2 JUN 2019 17:22
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**summary-stats.tex
-(./summary-stats.tex
+**analysis.tex
+(./analysis.tex
 LaTeX2e <2018-04-01> patch level 2
 Babel <3.18> and hyphenation patterns for 84 language(s) loaded.
 (/usr/local/texlive/2018/texmf-dist/tex/latex/base/article.cls
@@ -652,8 +652,8 @@ Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1368.
 Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1369.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1370.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
-) (./summary-stats.aux)
-\openout1 = `summary-stats.aux'.
+) (./analysis.aux)
+\openout1 = `analysis.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 143.
 LaTeX Font Info:    ... okay on input line 143.
@@ -742,9 +742,9 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 143.
 LaTeX Info: Redefining \pageref on input line 143.
 LaTeX Info: Redefining \nameref on input line 143.
-(./summary-stats.out) (./summary-stats.out)
+(./analysis.out) (./analysis.out)
 \@outlinefile=\write4
-\openout4 = `summary-stats.out'.
+\openout4 = `analysis.out'.
 
 (/usr/local/texlive/2018/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -841,173 +841,139 @@ Package xcolor Warning: Incompatible color definition on input line 159.
 Package xcolor Warning: Incompatible color definition on input line 161.
 
 
-Package xcolor Warning: Incompatible color definition on input line 227.
+Package xcolor Warning: Incompatible color definition on input line 165.
 
 
-Package xcolor Warning: Incompatible color definition on input line 227.
+Package xcolor Warning: Incompatible color definition on input line 165.
 
 
-Package xcolor Warning: Incompatible color definition on input line 227.
+Package xcolor Warning: Incompatible color definition on input line 167.
+
+
+Package xcolor Warning: Incompatible color definition on input line 171.
+
+
+Package xcolor Warning: Incompatible color definition on input line 171.
+
+<analysis_files/figure-latex/ATE-1.pdf, id=6, 440.64626pt x 251.94125pt>
+File: analysis_files/figure-latex/ATE-1.pdf Graphic file (type pdf)
+<use analysis_files/figure-latex/ATE-1.pdf>
+Package pdftex.def Info: analysis_files/figure-latex/ATE-1.pdf  used on input l
+ine 173.
+(pdftex.def)             Requested size: 440.64517pt x 251.94063pt.
+<analysis_files/figure-latex/ATE-2.pdf, id=7, 440.64626pt x 251.94125pt>
+File: analysis_files/figure-latex/ATE-2.pdf Graphic file (type pdf)
+<use analysis_files/figure-latex/ATE-2.pdf>
+Package pdftex.def Info: analysis_files/figure-latex/ATE-2.pdf  used on input l
+ine 174.
+(pdftex.def)             Requested size: 440.64517pt x 251.94063pt.
+<analysis_files/figure-latex/ATE-3.pdf, id=8, 440.64626pt x 251.94125pt>
+File: analysis_files/figure-latex/ATE-3.pdf Graphic file (type pdf)
+<use analysis_files/figure-latex/ATE-3.pdf>
+Package pdftex.def Info: analysis_files/figure-latex/ATE-3.pdf  used on input l
+ine 175.
+(pdftex.def)             Requested size: 440.64517pt x 251.94063pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 173--176
+[][]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 173--176
+[]
+ []
 
 [1
 
-{/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+{/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./analy
+sis_files/figure-latex/ATE-1.pdf>] [2 <./analysis_files/figure-latex/ATE-2.pdf>
+ <./analysis_files/figure-latex/ATE-3.pdf>]
+LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 208
+.
+(/usr/local/texlive/2018/texmf-dist/tex/latex/lm/ts1lmtt.fd
+File: ts1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+<analysis_files/figure-latex/ATE-4.pdf, id=44, 453.695pt x 315.1775pt>
+File: analysis_files/figure-latex/ATE-4.pdf Graphic file (type pdf)
+<use analysis_files/figure-latex/ATE-4.pdf>
+Package pdftex.def Info: analysis_files/figure-latex/ATE-4.pdf  used on input l
+ine 210.
+(pdftex.def)             Requested size: 453.6939pt x 315.17673pt.
 
-Package xcolor Warning: Incompatible color definition on input line 227.
+Package xcolor Warning: Incompatible color definition on input line 212.
 
 
-Package xcolor Warning: Incompatible color definition on input line 227.
+Package xcolor Warning: Incompatible color definition on input line 216.
 
-[2]
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 235.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 235.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 235.
 
-Overfull \hbox (409.73958pt too wide) in paragraph at lines 235--253
- [][] 
+Package xcolor Warning: Incompatible color definition on input line 216.
+
+<analysis_files/figure-latex/ATE-5.pdf, id=45, 440.64626pt x 257.96375pt>
+File: analysis_files/figure-latex/ATE-5.pdf Graphic file (type pdf)
+<use analysis_files/figure-latex/ATE-5.pdf>
+Package pdftex.def Info: analysis_files/figure-latex/ATE-5.pdf  used on input l
+ine 218.
+(pdftex.def)             Requested size: 440.66533pt x 257.9749pt.
+<analysis_files/figure-latex/ATE-6.pdf, id=46, 449.68pt x 251.94125pt>
+File: analysis_files/figure-latex/ATE-6.pdf Graphic file (type pdf)
+<use analysis_files/figure-latex/ATE-6.pdf>
+Package pdftex.def Info: analysis_files/figure-latex/ATE-6.pdf  used on input l
+ine 219.
+(pdftex.def)             Requested size: 449.6789pt x 251.94063pt.
+<analysis_files/figure-latex/ATE-7.pdf, id=47, 440.64626pt x 251.94125pt>
+File: analysis_files/figure-latex/ATE-7.pdf Graphic file (type pdf)
+<use analysis_files/figure-latex/ATE-7.pdf>
+Package pdftex.def Info: analysis_files/figure-latex/ATE-7.pdf  used on input l
+ine 220.
+(pdftex.def)             Requested size: 440.64517pt x 251.94063pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 218--221
+[][]
  []
 
-[3pdfTeX warning (ext4): destination with the same identifier (name{table.1}) h
-as been already used, duplicate ignored
 
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.254 \end{landscape}
-                     ]
+Underfull \hbox (badness 10000) in paragraph at lines 218--221
+[]
+ []
 
-Package xcolor Warning: Incompatible color definition on input line 256.
-
-
-Package xcolor Warning: Incompatible color definition on input line 260.
-
-
-Package xcolor Warning: Incompatible color definition on input line 260.
-
-
-Package xcolor Warning: Incompatible color definition on input line 262.
-
-
-Package xcolor Warning: Incompatible color definition on input line 294.
-
-
-Package xcolor Warning: Incompatible color definition on input line 294.
-
-
-Package xcolor Warning: Incompatible color definition on input line 296.
-
-
-Package xcolor Warning: Incompatible color definition on input line 300.
-
-
-Package xcolor Warning: Incompatible color definition on input line 300.
-
-<summary-stats_files/figure-latex/calibration_plots-1.pdf, id=26, 440.64626pt x
- 251.94125pt>
-File: summary-stats_files/figure-latex/calibration_plots-1.pdf Graphic file (ty
-pe pdf)
-<use summary-stats_files/figure-latex/calibration_plots-1.pdf>
-Package pdftex.def Info: summary-stats_files/figure-latex/calibration_plots-1.p
-df  used on input line 302.
-(pdftex.def)             Requested size: 440.64517pt x 251.94063pt.
-
-Package xcolor Warning: Incompatible color definition on input line 304.
-
-[4
-
-
-]
-
-Package xcolor Warning: Incompatible color definition on input line 308.
-
-
-Package xcolor Warning: Incompatible color definition on input line 308.
-
-<summary-stats_files/figure-latex/calibration_plots-2.pdf, id=31, 440.64626pt x
- 251.94125pt>
-File: summary-stats_files/figure-latex/calibration_plots-2.pdf Graphic file (ty
-pe pdf)
-<use summary-stats_files/figure-latex/calibration_plots-2.pdf>
-Package pdftex.def Info: summary-stats_files/figure-latex/calibration_plots-2.p
-df  used on input line 310.
-(pdftex.def)             Requested size: 440.64517pt x 251.94063pt.
-
-Package xcolor Warning: Incompatible color definition on input line 312.
-
-
-Package xcolor Warning: Incompatible color definition on input line 316.
-
-
-Package xcolor Warning: Incompatible color definition on input line 316.
-
-<summary-stats_files/figure-latex/calibration_plots-3.pdf, id=32, 440.64626pt x
- 251.94125pt>
-File: summary-stats_files/figure-latex/calibration_plots-3.pdf Graphic file (ty
-pe pdf)
-<use summary-stats_files/figure-latex/calibration_plots-3.pdf>
-Package pdftex.def Info: summary-stats_files/figure-latex/calibration_plots-3.p
-df  used on input line 318.
-(pdftex.def)             Requested size: 440.64517pt x 251.94063pt.
-
-Package xcolor Warning: Incompatible color definition on input line 320.
-
-[5 <./summary-stats_files/figure-latex/calibration_plots-1.pdf> <./summary-stat
-s_files/figure-latex/calibration_plots-2.pdf>]
-
-Package xcolor Warning: Incompatible color definition on input line 341.
-
-
-Package xcolor Warning: Incompatible color definition on input line 341.
-
-[6 <./summary-stats_files/figure-latex/calibration_plots-3.pdf>]
-
-Package xcolor Warning: Incompatible color definition on input line 361.
-
-
-Package xcolor Warning: Incompatible color definition on input line 368.
-
-
-Package xcolor Warning: Incompatible color definition on input line 368.
-
-<summary-stats_files/figure-latex/results_table-1.pdf, id=62, 453.695pt x 315.1
-775pt>
-File: summary-stats_files/figure-latex/results_table-1.pdf Graphic file (type p
-df)
-<use summary-stats_files/figure-latex/results_table-1.pdf>
-Package pdftex.def Info: summary-stats_files/figure-latex/results_table-1.pdf  
-used on input line 370.
-(pdftex.def)             Requested size: 453.6939pt x 315.17673pt.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 376.
-[7 <./summary-stats_files/figure-latex/results_table-1.pdf>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 376.
-(./summary-stats.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 376.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 376.
-Package rerunfilecheck Info: File `summary-stats.out' has not changed.
+[3 <./analysis_files/figure-latex/ATE-4.pdf>] [4 <./analysis_files/figure-latex
+/ATE-5.pdf> <./analysis_files/figure-latex/ATE-6.pdf>]
+<analysis_files/figure-latex/ATE-8.pdf, id=78, 453.695pt x 313.17pt>
+File: analysis_files/figure-latex/ATE-8.pdf Graphic file (type pdf)
+<use analysis_files/figure-latex/ATE-8.pdf>
+Package pdftex.def Info: analysis_files/figure-latex/ATE-8.pdf  used on input l
+ine 255.
+(pdftex.def)             Requested size: 453.6939pt x 313.16922pt.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 258.
+[5 <./analysis_files/figure-latex/ATE-7.pdf>] [6 <./analysis_files/figure-latex
+/ATE-8.pdf>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 258.
+(./analysis.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 258.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 258.
+Package rerunfilecheck Info: File `analysis.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 376.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 258.
  ) 
 Here is how much of TeX's memory you used:
- 14382 strings out of 492649
- 209786 string characters out of 6129622
- 333137 words of memory out of 5000000
- 17989 multiletter control sequences out of 15000+600000
- 44296 words of font info for 68 fonts, out of 8000000 for 9000
+ 14373 strings out of 492649
+ 209971 string characters out of 6129622
+ 334851 words of memory out of 5000000
+ 17997 multiletter control sequences out of 15000+600000
+ 31919 words of font info for 49 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 35i,9n,38p,383b,455s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}</usr/local/
-texlive/2018/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/201
-8/texmf-dist/fonts/type1/public/lm/lmr17.pfb></usr/local/texlive/2018/texmf-dis
-t/fonts/type1/public/lm/lmri12.pfb></usr/local/texlive/2018/texmf-dist/fonts/ty
-pe1/public/lm/lmtk10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public
-/lm/lmtt10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/lm/lmtti1
-0.pfb>
-Output written on summary-stats.pdf (7 pages, 1595316 bytes).
+ 35i,5n,38p,233b,455s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/local
+/texlive/2018/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}</usr/local/texlive/2018/
+texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2018/texmf-dist/
+fonts/type1/public/lm/lmr17.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1
+/public/lm/lmri12.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/lm
+/lmtk10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/lm/lmtt10.pf
+b>
+Output written on analysis.pdf (6 pages, 2146655 bytes).
 PDF statistics:
- 101 PDF objects out of 1000 (max. 8388607)
- 73 compressed objects within 1 object stream
- 9 named destinations out of 1000 (max. 500000)
- 12309 words of extra memory for PDF output out of 14400 (max. 10000000)
+ 125 PDF objects out of 1000 (max. 8388607)
+ 87 compressed objects within 1 object stream
+ 7 named destinations out of 1000 (max. 500000)
+ 10281 words of extra memory for PDF output out of 12000 (max. 10000000)
 

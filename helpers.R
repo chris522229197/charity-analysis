@@ -129,6 +129,67 @@ aipw_ols <- function(dataset, p) {
 # For ATE, show the results of different methods. Talk about how they compare to each other.
 # Sensitivity analysis with data set reduction.
 
+calculate_ATE <- function(df, ratio = 1) {
+  df <- df %>% sample_n(nrow(df)*ratio)
+  
+  # Convert to binary treatment
+  df1 <- convert_df(df, 0, 1)
+  df2 <- convert_df(df, 0, 2)
+  df3 <- convert_df(df, 0, 3)
+  
+  # Calculate RCT baseline
+  tauhat_rct1 <- difference_in_means(df1)
+  tauhat_rct2 <- difference_in_means(df2)
+  tauhat_rct3 <- difference_in_means(df3)
+  
+  # ATE using Direct Conditional Regression with OLS
+  tauhat_ols1 <- ate_condmean_ols(df1)
+  tauhat_ols2 <- ate_condmean_ols(df2)
+  tauhat_ols3 <- ate_condmean_ols(df3)
+  
+  # Calculate propensity score for use in IPW and AIPW
+  p1 <- prop_score(df1)
+  p2 <- prop_score(df2)
+  p3 <- prop_score(df3)
+  
+  # ATE using IPW
+  tauhat_logistic_ipw1 <- ipw(df1, p1)
+  tauhat_logistic_ipw2 <- ipw(df2, p2)
+  tauhat_logistic_ipw3 <- ipw(df3, p3)
+  
+  # ATE using AIPW
+  tauhat_logistic_aipw1 <- aipw_ols(df1, p1)
+  tauhat_logistic_aipw2 <- aipw_ols(df2, p2)
+  tauhat_logistic_aipw3 <- aipw_ols(df3, p3)
+
+  plot_calibration(p1, df1$W)
+  plot_calibration(p2, df2$W)
+  plot_calibration(p3, df3$W)
+
+  all_estimators = rbind(
+    RCT_gold_standard_1 = tauhat_rct1,
+    RCT_gold_standard_2 = tauhat_rct2,
+    RCT_gold_standard_3 = tauhat_rct3,
+    linear_regression_1 = tauhat_ols1,
+    linear_regression_2 = tauhat_ols2,
+    linear_regression_3 = tauhat_ols3,
+    IPW_logistic_1 = tauhat_logistic_ipw1,
+    IPW_logistic_2 = tauhat_logistic_ipw2,
+    IPW_logistic_3 = tauhat_logistic_ipw3,
+    AIPW_logistic_1 = tauhat_logistic_aipw1,
+    AIPW_logistic_2 = tauhat_logistic_aipw2,
+    AIPW_logistic_3 = tauhat_logistic_aipw3
+  )
+  all_estimators <- data.frame(all_estimators)
+  all_estimators <- add_rownames(all_estimators, "Estimator")
+  all_estimators$treatment_lvl <- substr(all_estimators$Estimator, nchar(all_estimators$Estimator), nchar(all_estimators$Estimator))
+  print(all_estimators)
+
+  f <- ggplot(all_estimators, aes(x = Estimator, y = ATE, ymin = lower_ci, ymax = upper_ci))
+  f + geom_crossbar(aes(color = treatment_lvl),
+                    position = position_dodge(1)) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+}
 
 # S-learner OOB estimates with regression forest
 fit_sf <- function(X, W, Y, num_trees = 50) {

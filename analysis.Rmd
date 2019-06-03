@@ -7,6 +7,7 @@ date: '`r Sys.Date()`'
 output: pdf_document
 ---
 
+
 ```{r load_process_data, warning=FALSE, message=FALSE}
 source("helpers.R")
 source("load-data.R")
@@ -26,3 +27,16 @@ results_forests <- Reduce(rbind, list(results_forests_01,
                                       results_forests_02, 
                                       results_forests_03))
 ```
+
+```{r setup, warning=FALSE, message=FALSE}
+library(dplyr)
+library(kableExtra)
+library(sandwich)
+library(ggplot2)
+```
+
+```{r ATE, warning=FALSE, message=FALSE}
+calculate_ATE(df, 1)
+calculate_ATE(df, 0.2)
+```
+
