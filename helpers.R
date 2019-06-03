@@ -1,5 +1,19 @@
 # This script contains helper functions
 
+library(kableExtra)
+library(ggplot2)
+library(dplyr)
+library(grf)
+library(purrr)
+library(scales)
+library(caret)
+library(causalTree)
+library(causalToolbox)
+library(rpart)
+library(rpart.plot)
+library(treeClust)
+library(car)
+
 # Split entire data set into interested treatment group
 split_control_treated <- function(control_lab, treated_lab, df, 
                                   covariates, outcome_var = "Y", 
@@ -191,4 +205,49 @@ rloss <- function(Y_tilde, W_tilde, estimated_tau) {
   robinson_tau <- robinson_ols$coefficients["W_tilde"]
   delta <- (Y_tilde - estimated_tau*W_tilde)^2 - (Y_tilde - robinson_tau*W_tilde)^2
   return(delta)
+}
+
+# Compute the OOB estimates and R losses for different forest-based models
+compare_forests <- function(X, W, Y, num_trees = 50) {
+  # HTE estimates with the models
+  message("Fitting the S-learner forest...")
+  sf <- fit_sf(X, W, Y, num_trees)
+  
+  message("Fitting the T-learner forest...")
+  tf <- fit_tf(X, W, Y, num_trees)
+  
+  message("Fitting the X-learner forest...")
+  xf <- fit_xf(X, W, Y, num_trees)
+  
+  message("Fitting the causal forest...")
+  cf <- fit_cf(X, W, Y, num_trees)
+  
+  # R losses
+  Y_tilde <- find_Y_tilde(X, Y, num_trees)
+  W_tilde <- find_W_tilde(X, W, num_trees)
+  
+  rloss_fn <- purrr::partial(rloss, Y_tilde = Y_tilde, W_tilde = W_tilde)
+  sf_rl <- rloss_fn(sf)
+  tf_rl <- rloss_fn(tf)
+  xf_rl <- rloss_fn(xf)
+  cf_rl <- rloss_fn(cf)
+  
+  # Pack the results together
+  estimates <- list(sf, tf, xf, cf)
+  rls <- list(sf_rl, tf_rl, xf_rl, cf_rl)
+  learners <- list("S-forest", "T-forest", "X-forest", "Causal forest")
+  
+  # Organize into a data frame output
+  output_lst <- list()
+  for (i in 1:length(estimates)) {
+    output_df <- data.frame("estimate" = estimates[[i]], 
+                            "rloss" = rls[[i]], 
+                            "learner" = learners[[i]], 
+                            "Y" = Y, "W" = W)
+    output_df <- cbind(output_df, as.data.frame(X))
+    output_lst[[i]] <- output_df
+  }
+  output <- Reduce(rbind, output_lst)
+  output$learner <- factor(output$learner, levels = unlist(learners))
+  return(output)
 }
