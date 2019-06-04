@@ -87,12 +87,34 @@ hte_best_03 <- hte_results %>%
 
 ```{r test_overall_hetero, warning=FALSE, message=FALSE}
 # Hypothesis test for overall treatment heterogeneity
-test_hetero_01 <- test_hetero(as.matrix(hte_best_01[ , covariate_names]), hte_best_01$W, 
-                              hte_best_01$Y, hte_best_01$estimate, NUM_TREES)
-test_hetero_02 <- test_hetero(as.matrix(hte_best_02[ , covariate_names]), hte_best_02$W, 
-                              hte_best_02$Y, hte_best_02$estimate, NUM_TREES)
-test_hetero_03 <- test_hetero(as.matrix(hte_best_03[ , covariate_names]), hte_best_03$W, 
-                              hte_best_03$Y, hte_best_03$estimate, NUM_TREES)
+if (!file.exists("results/test_hetero_summary_01.rds")) {
+  test_hetero_01 <- test_hetero(as.matrix(hte_best_01[ , covariate_names]), hte_best_01$W, 
+                                hte_best_01$Y, hte_best_01$estimate, NUM_TREES)
+  test_hetero_summary_01 <- summarize_test_hetero(test_hetero_01)
+  saveRDS(test_hetero_summary_01, file = "results/test_hetero_summary_01.rds")
+} else {
+  test_hetero_summary_01 <- readRDS("results/test_hetero_summary_01.rds")
+}
+
+
+if (!file.exists("results/test_hetero_summary_02.rds")) {
+  test_hetero_02 <- test_hetero(as.matrix(hte_best_02[ , covariate_names]), hte_best_02$W, 
+                                hte_best_02$Y, hte_best_02$estimate, NUM_TREES)
+  test_hetero_summary_02 <- summarize_test_hetero(test_hetero_02)
+  saveRDS(test_hetero_summary_02, file = "results/test_hetero_summary_02.rds")
+} else {
+  test_hetero_summary_02 <- readRDS("results/test_hetero_summary_02.rds")
+}
+
+
+if (!file.exists("results/test_hetero_summary_03.rds")) {
+  test_hetero_03 <- test_hetero(as.matrix(hte_best_03[ , covariate_names]), hte_best_03$W, 
+                                hte_best_03$Y, hte_best_03$estimate, NUM_TREES)
+  test_hetero_summary_03 <- summarize_test_hetero(test_hetero_03)
+  saveRDS(test_hetero_summary_03, file = "results/test_hetero_summary_03.rds")
+} else {
+  test_hetero_summary_03 <- readRDS("results/test_hetero_summary_03.rds")
+}
 ```
 
 ```{r ATE, warning=FALSE, message=FALSE}

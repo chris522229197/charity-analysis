@@ -554,6 +554,15 @@ test_hetero <- function(X, W, Y, tauhat, num_trees = 50) {
   return(testing_lm)
 }
 
+# Extract and essential info for testing heterogeneity
+summarize_test_hetero <- function(testing_lm) {
+  lm_summary <- summary(testing_lm)$coefficients
+  beta <- lm_summary["hetero", "Estimate"]
+  beta_se <- lm_summary["hetero", "Std. Error"]
+  onesided_pval <- lm_summary["hetero", "Pr(>|t|)"] / 2
+  return(list("beta" = beta, "beta_se" = beta_se, "onesided_pval" = onesided_pval))
+}
+
 # Summarize HTE learner results
 summarize_hte_results <- function(hte_results, comparison) {
   hte_summary <- hte_results %>% 
