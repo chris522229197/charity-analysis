@@ -147,6 +147,25 @@ aipw_rf <- function(dataset, num_trees = 50) {
     upper_ci=ate_cf_aipw["estimate"] + 1.96 * ate_cf_aipw["std.err"])
 }
 
+aipw_glmnet <- function(dataset, p, k = 10, alpha = 0) {
+  Y <- dataset$Y
+  W <- dataset$W
+  X <- data.matrix(dataset %>% select(-c(Y,W)))
+  XW <- cbind(X,W)
+  cv <- cv.glmnet(XW, Y, nfolds = k, alpha = alpha)
+  fitted_glmnet <- glmnet(XW, Y, alpha = alpha, lambda = cv$lambda.min)
+  dataset.treatall = cbind(X, 1)
+  treated_pred = as.vector(predict(fitted_glmnet, dataset.treatall))
+  dataset.treatnone = cbind(X, 0)
+  control_pred = as.vector(predict(fitted_glmnet, dataset.treatnone))
+  actual_pred = predict(fitted_glmnet, XW)
+  G <- treated_pred - control_pred +
+    ((dataset$W - p) * (dataset$Y - actual_pred)) / (p * (1 - p))
+  tau.hat <- mean(G)
+  se.hat <- sqrt(var(G) / (length(G) - 1))
+  c(ATE=tau.hat, lower_ci = tau.hat - 1.96 * se.hat, upper_ci = tau.hat + 1.96 * se.hat)
+}
+
 # For ATE, show the results of different methods. Talk about how they compare to each other.
 # Sensitivity analysis with data set reduction.
 
@@ -202,6 +221,11 @@ calculate_ATE <- function(df1, df2, df3, ratio = 1) {
   tauhat_rf_aipw1 <- aipw_rf(df1)
   tauhat_rf_aipw2 <- aipw_rf(df2)
   tauhat_rf_aipw3 <- aipw_rf(df3)
+  
+  # ATE using AIPW with glmnet propensity score and regression
+  tauhat_glmnet_aipw1 <- aipw_glmnet(df1, p_glmnet1)
+  tauhat_glmnet_aipw2 <- aipw_glmnet(df2, p_glmnet2)
+  tauhat_glmnet_aipw3 <- aipw_glmnet(df3, p_glmnet3)
 
   plot_calibration(p_logistic1, df1$W)
   plot_calibration(p_logistic2, df2$W)
@@ -225,7 +249,10 @@ calculate_ATE <- function(df1, df2, df3, ratio = 1) {
     AIPW_logistic_ols_3 = tauhat_logistic_ols_aipw3,
     AIPW_rf_1 = tauhat_rf_aipw1,
     AIPW_rf_2 = tauhat_rf_aipw2,
-    AIPW_rf_3 = tauhat_rf_aipw3
+    AIPW_rf_3 = tauhat_rf_aipw3,
+    AIPW_glmnet_1 = tauhat_glmnet_aipw1,
+    AIPW_glmnet_2 = tauhat_glmnet_aipw2,
+    AIPW_glmnet_3 = tauhat_glmnet_aipw3
   )
   all_estimators <- data.frame(all_estimators)
   all_estimators <- add_rownames(all_estimators, "Estimator")
