@@ -126,6 +126,7 @@ calculate_ATE(df1, df2, df3, 0.5)
 ```
 
 ```{r plot_propensities, warning=FALSE, message=FALSE}
+par(mfrow=c(3,3))
 plot_p_vs_x(p_logistic(data_01$df), data_01$df$pblack, "pblack")
 plot_p_vs_x(p_logistic(data_01$df), data_01$df$median_hhincome, "median_hhincome")
 plot_p_vs_x(p_logistic(data_01$df), as.factor(data_01$df$red0), "red state")
