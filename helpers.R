@@ -489,3 +489,20 @@ compare_glmnets <- function(X, W, Y, ID, k = 10, alpha = 0, num_trees = 50) {
   output$learner <- factor(output$learner, levels = unlist(learners))
   return(output)
 }
+
+# Omnibus test for heterogeneity
+# Return an lm object
+test_hetero <- function(X, W, Y, ID, tauhat, num_trees = 50) {
+  Y_forest <- regression_forest(X, Y, num.trees = num_trees)
+  W_forest <- regression_forest(X, W, num.trees = num_trees)
+  Yhat <- predict(Y_forest)$predictions
+  What <- predict(W_forest)$predictions
+  # Get the response and predictors
+  mean_tauhat <- mean(tauhat)
+  testing_df <- data.frame("Y_tilde" = Y - Yhat, 
+                           "avg" = mean_tauhat * (W - What), 
+                           "hetero" = (tauhat - mean_tauhat) * (W - What))
+  # Perform the test by fitting an OLS
+  testing_lm <- lm(Y_tilde ~ avg + hetero + 0, data = testing_df)
+  return(testing_lm)
+}
