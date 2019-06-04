@@ -14,18 +14,44 @@ source("load-data.R")
 data_01 <- split_control_treated(0, 1, df, covariate_names)
 data_02 <- split_control_treated(0, 2, df, covariate_names)
 data_03 <- split_control_treated(0, 3, df, covariate_names)
+NUM_TREES <- 50
 ```
 
-```{r}
-results_forests_01 <- compare_forests(data_01$X, data_01$W, data_01$Y, data_01$ID, 50)
+```{r hte_forests, warning=FALSE, message=FALSE}
+results_forests_01 <- compare_forests(data_01$X, data_01$W, data_01$Y, data_01$ID, NUM_TREES)
 results_forests_01$compare <- "0 vs 1"
-results_forests_02 <- compare_forests(data_02$X, data_02$W, data_02$Y, data_02$ID, 50)
+
+results_forests_02 <- compare_forests(data_02$X, data_02$W, data_02$Y, data_02$ID, NUM_TREES)
 results_forests_02$compare <- "0 vs 2"
-results_forests_03 <- compare_forests(data_03$X, data_03$W, data_03$Y, data_03$ID, 50)
+
+results_forests_03 <- compare_forests(data_03$X, data_03$W, data_03$Y, data_03$ID, NUM_TREES)
 results_forests_03$compare <- "0 vs 3"
+
 results_forests <- Reduce(rbind, list(results_forests_01, 
                                       results_forests_02, 
                                       results_forests_03))
+```
+
+```{r hte_glmnets, warning=FALSE, message=FALSE}
+results_glmnets_01 <- compare_glmnets(data_01$X, data_01$W, data_01$Y, data_01$ID, 10, 0, NUM_TREES)
+results_glmnets_01$compare <- "0 vs 1"
+
+results_glmnets_02 <- compare_glmnets(data_02$X, data_02$W, data_02$Y, data_02$ID, 10, 0, NUM_TREES)
+results_glmnets_02$compare <- "0 vs 2"
+
+results_glmnets_03 <- compare_glmnets(data_03$X, data_03$W, data_03$Y, data_03$ID, 10, 0, NUM_TREES)
+results_glmnets_03$compare <- "0 vs 3"
+
+results_glmnets <- Reduce(rbind, list(results_glmnets_01, 
+                                      results_glmnets_02, 
+                                      results_glmnets_03))
+```
+
+```{r setup, warning=FALSE, message=FALSE}
+library(dplyr)
+library(kableExtra)
+library(sandwich)
+library(ggplot2)
 ```
 
 ```{r ATE, warning=FALSE, message=FALSE}

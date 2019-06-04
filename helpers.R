@@ -231,6 +231,34 @@ fit_sf <- function(X, W, Y, num_trees = 50) {
   return(preds.sf)
 }
 
+# S-learner OOB estimates with glmnet
+# Default is ridge regression
+# Lasso might be too sparse and ignore the coefficient for W 
+fit_sglmnet <- function(X, W, Y, ID, k = 10, alpha = 0) {
+  XW <- cbind(X, W)
+  # k-fold cross validation
+  test_folds <- createFolds(Y, k)
+  preds_sglmnet <- list()
+  for (i in 1:k) {
+    # Split data
+    test_fold <- test_folds[[i]]
+    XW_train <- XW[-test_fold, ]
+    Y_train <- Y[-test_fold]
+    X_test <- X[test_fold, ]
+    # CV for hyperparameter tuning
+    cv <- cv.glmnet(XW_train, Y_train, nfolds = k, alpha = alpha)
+    # Fit the model with the best hyperparameter
+    fitted_glmnet <- glmnet(XW_train, Y_train, lambda = cv$lambda.min, alpha = alpha)
+    # Prediction on held-out set
+    preds0 <- as.vector(predict(fitted_glmnet, newx = cbind(X_test, 0)))
+    preds1 <- as.vector(predict(fitted_glmnet, newx = cbind(X_test, 1)))
+    preds_df <- data.frame("pred" = preds1 - preds0, "ID" = ID[test_fold])
+    preds_sglmnet[[i]] <- preds_df
+  }
+  preds_sglmnet <- Reduce(rbind, preds_sglmnet)
+  return(preds_sglmnet)
+}
+
 # T-learner OOB estimates with regression forest
 fit_tf <- function(X, W, Y, num_trees = 50) {
   # Code from Lecture 5 of Machine Learning and Causal Inference (Stefan Wager)
@@ -242,6 +270,38 @@ fit_tf <- function(X, W, Y, num_trees = 50) {
   tf.preds.1[W==1] = predict(tf1)$predictions #OOB
   preds.tf = tf.preds.1 - tf.preds.0
   return(preds.tf)
+}
+
+# T-learner OOB estimates with glmnet
+fit_tglmnet <- function(X, W, Y, ID, k = 10, alpha = 0) {
+  # k-fold cross validation
+  test_folds <- createFolds(Y, k)
+  preds_tglmnet <- list()
+  for (i in 1:k) {
+    # Split data
+    test_fold <- test_folds[[i]]
+    X_train <- X[-test_fold, ]
+    W_train <- W[-test_fold]
+    Y_train <- Y[-test_fold]
+    X_test <- X[test_fold, ]
+    # CVs for hyperparameter tuning
+    cv0 <- cv.glmnet(X_train[W_train == 0, ], Y_train[W_train == 0], nfolds = k, 
+                     alpha = alpha)
+    cv1 <- cv.glmnet(X_train[W_train == 1, ], Y_train[W_train == 1], nfolds = k, 
+                     alpha = alpha)
+    # Fit the models with the best hyperparameters
+    fitted_glmnet0 <- glmnet(X_train[W_train == 0, ], Y_train[W_train == 0], alpha = alpha, 
+                             lambda = cv0$lambda.min)
+    fitted_glmnet1 <- glmnet(X_train[W_train == 1, ], Y_train[W_train == 1], alpha = alpha, 
+                             lambda = cv1$lambda.min)
+    # Prediction on held-out set
+    preds0 <- as.vector(predict(fitted_glmnet0, newx = X_test))
+    preds1 <- as.vector(predict(fitted_glmnet1, newx = X_test))
+    preds_df <- data.frame("pred" = preds1 - preds0, "ID" = ID[test_fold])
+    preds_tglmnet[[i]] <- preds_df
+  }
+  preds_tglmnet <- Reduce(rbind, preds_tglmnet)
+  return(preds_tglmnet)
 }
 
 # X-learner OOB estimates with regression forest
@@ -263,6 +323,55 @@ fit_xf <- function(X, W, Y, num_trees = 50) {
   ehat = predict(propf)$predictions
   preds.xf = (1 - ehat) * xf.preds.1 + ehat * xf.preds.0
   return(preds.xf)
+}
+
+# X-learner OOB estimates with glmnet
+fit_xglmnet <- function(X, W, Y, ID, k = 10, alpha = 0) {
+  # k-fold cross validation
+  test_folds <- createFolds(Y, k)
+  preds_xglmnet <- list()
+  for (i in 1:k) {
+    # Split data
+    test_fold <- test_folds[[i]]
+    X_train <- X[-test_fold, ]
+    W_train <- W[-test_fold]
+    Y_train <- Y[-test_fold]
+    X_test <- X[test_fold, ]
+    
+    # Treated prediction
+    t_learner0_cv <- cv.glmnet(X_train[W_train == 0, ], Y_train[W_train == 0], 
+                               alpha = alpha, nfolds = k)
+    t_learner0 <- glmnet(X_train[W_train == 0, ], Y_train[W_train == 0], alpha = alpha, 
+                         lambda = t_learner0_cv$lambda.min)
+    yhat0 <- predict(t_learner0, newx = X_train[W_train == 1, ])
+    x_learner1_cv <- cv.glmnet(X_train[W_train == 1, ], Y_train[W_train == 1] - yhat0, 
+                               alpha = alpha, nfolds = k)
+    x_learner1 <- glmnet(X_train[W_train == 1, ], Y_train[W_train == 1] - yhat0, 
+                         alpha = alpha, lambda = x_learner1_cv$lambda.min)
+    x_learner_preds1 <- as.vector(predict(x_learner1, newx = X_test))
+    
+    # Control prediction
+    t_learner1_cv <- cv.glmnet(X_train[W_train == 1, ], Y_train[W_train == 1], 
+                               alpha = alpha, nfolds = k)
+    t_learner1 <- glmnet(X_train[W_train == 1, ], Y_train[W_train == 1], alpha = alpha, 
+                         lambda = t_learner1_cv$lambda.min)
+    yhat1 <- predict(t_learner1, newx = X_train[W_train == 0, ])
+    x_learner0_cv <- cv.glmnet(X_train[W_train == 0, ], yhat1 - Y_train[W_train == 0], 
+                               alpha = alpha, nfolds = k)
+    x_learner0 <- glmnet(X_train[W_train == 0, ], yhat1 - Y_train[W_train == 0], 
+                         alpha = alpha, lambda = x_learner0_cv$lambda.min)
+    x_learner_preds0 <- as.vector(predict(x_learner0, newx = X_test))
+    
+    # Propensity score regression
+    prop_glmnet_cv <- cv.glmnet(X_train, W_train, alpha = alpha, nfolds = k)
+    prop_glmnet <- glmnet(X_train, W_train, alpha = alpha, 
+                          lambda = prop_glmnet_cv$lambda.min)
+    ehat <- as.vector(predict(prop_glmnet, X_test))
+    preds_x_learner <- (1 - ehat) * x_learner_preds1 + ehat * x_learner_preds0
+    preds_xglmnet[[i]] <- data.frame("pred" = preds_x_learner, "ID" = ID[test_fold])
+  }
+  preds_xglmnet <- Reduce(rbind, preds_xglmnet)
+  return(preds_xglmnet)
 }
 
 # Causal forest OOB estimates
@@ -332,6 +441,47 @@ compare_forests <- function(X, W, Y, ID, num_trees = 50) {
                             "rloss" = rls[[i]], 
                             "learner" = learners[[i]], 
                             "Y" = Y, "W" = W, "ID" = ID)
+    output_df <- cbind(output_df, as.data.frame(X))
+    output_lst[[i]] <- output_df
+  }
+  output <- Reduce(rbind, output_lst)
+  output$learner <- factor(output$learner, levels = unlist(learners))
+  return(output)
+}
+
+# Compute the OOB estimates and R losses for different glmnet-based models
+compare_glmnets <- function(X, W, Y, ID, k = 10, alpha = 0, num_trees = 50) {
+  # HTE estimates with the models
+  message("Fitting the S-learner glmnet...")
+  sglm <- fit_sglmnet(X, W, Y, ID, k, alpha)
+  
+  message("Fitting the T-learner glmnet...")
+  tglm <- fit_tglmnet(X, W, Y, ID, k, alpha)
+  
+  message("Fitting the X-learner glmnet...")
+  xglm <- fit_xglmnet(X, W, Y, ID, k, alpha)
+  
+  # R losses
+  Y_tilde <- find_Y_tilde(X, Y, num_trees)
+  W_tilde <- find_W_tilde(X, W, num_trees)
+  
+  rloss_fn <- purrr::partial(rloss, Y_tilde = Y_tilde, W_tilde = W_tilde)
+  sglm_rl <- rloss_fn(sglm$pred)
+  tglm_rl <- rloss_fn(tglm$pred)
+  xglm_rl <- rloss_fn(xglm$pred)
+  
+  # Pack the results together
+  estimates <- list(sglm, tglm, xglm)
+  rls <- list(sglm_rl, tglm_rl, xglm_rl)
+  learners <- list("S-glmnet", "T-glmnet", "X-glmnet")
+  
+  # Organize into a data frame output
+  output_lst <- list()
+  for (i in 1:length(estimates)) {
+    output_df <- data.frame("estimate" = estimates[[i]]$pred, 
+                            "rloss" = rls[[i]], 
+                            "learner" = learners[[i]], 
+                            "Y" = Y, "W" = W, "ID" = estimates[[i]]$ID)
     output_df <- cbind(output_df, as.data.frame(X))
     output_lst[[i]] <- output_df
   }
