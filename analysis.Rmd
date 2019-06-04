@@ -62,6 +62,29 @@ if (!file.exists("results/results_glmnets.rds")) {
 }
 ```
 
+```{r best_hte_learners, warning=FALSE, message=FALSE}
+# Combine all the results
+hte_results <- rbind(results_forests, results_glmnets)
+
+# Summarize the learner results
+hte_summary_01 <- summarize_hte_results(hte_results, "0 vs 1")
+hte_summary_02 <- summarize_hte_results(hte_results, "0 vs 2")
+hte_summary_03 <- summarize_hte_results(hte_results, "0 vs 3")
+
+# Find the best learners
+hte_best_01 <- hte_results %>% 
+  filter(compare == "0 vs 1") %>% 
+  filter(learner == hte_summary_01$learner[hte_summary_01$MRL == min(hte_summary_01$MRL)])
+
+hte_best_02 <- hte_results %>% 
+  filter(compare == "0 vs 2") %>% 
+  filter(learner == hte_summary_02$learner[hte_summary_02$MRL == min(hte_summary_02$MRL)])
+
+hte_best_03 <- hte_results %>% 
+  filter(compare == "0 vs 3") %>%
+  filter(learner == hte_summary_03$learner[hte_summary_03$MRL == min(hte_summary_03$MRL)])
+```
+
 ```{r ATE, warning=FALSE, message=FALSE}
 calculate_ATE(data_01$df, data_02$df, data_03$df, 1)
 calculate_ATE(data_01$df, data_02$df, data_03$df, 0.5)

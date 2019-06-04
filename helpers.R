@@ -553,3 +553,12 @@ test_hetero <- function(X, W, Y, ID, tauhat, num_trees = 50) {
   testing_lm <- lm(Y_tilde ~ avg + hetero + 0, data = testing_df)
   return(testing_lm)
 }
+
+# Summarize HTE learner results
+summarize_hte_results <- function(hte_results, comparison) {
+  hte_summary <- hte_results %>% 
+    filter(compare == comparison) %>%
+    group_by(learner) %>%
+    summarise(MRL = mean(rloss), SDRL = sd(rloss))
+  return(hte_summary)
+}
