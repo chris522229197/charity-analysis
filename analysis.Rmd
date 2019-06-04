@@ -9,6 +9,7 @@ output: pdf_document
 
 
 ```{r load_process_data, warning=FALSE, message=FALSE}
+# Set up data and global variables
 source("helpers.R")
 source("load-data.R")
 data_01 <- split_control_treated(0, 1, df, covariate_names)
@@ -18,6 +19,7 @@ NUM_TREES <- 500
 ```
 
 ```{r hte_forests, warning=FALSE, message=FALSE}
+# Estimate HTEs using forest-based learners
 if (!file.exists("results/results_forests.rds")) {
   set.seed(123)
   results_forests_01 <- compare_forests(data_01$X, data_01$W, data_01$Y, data_01$ID, NUM_TREES)
@@ -39,6 +41,7 @@ if (!file.exists("results/results_forests.rds")) {
 ```
 
 ```{r hte_glmnets, warning=FALSE, message=FALSE}
+# Estimate HTEs using ridge-based learners
 if (!file.exists("results/results_glmnets.rds")) {
   set.seed(1234)
   results_glmnets_01 <- compare_glmnets(data_01$X, data_01$W, data_01$Y, data_01$ID, 10, 0, NUM_TREES)
