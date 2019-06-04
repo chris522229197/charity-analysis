@@ -47,13 +47,6 @@ results_glmnets <- Reduce(rbind, list(results_glmnets_01,
                                       results_glmnets_03))
 ```
 
-```{r setup, warning=FALSE, message=FALSE}
-library(dplyr)
-library(kableExtra)
-library(sandwich)
-library(ggplot2)
-```
-
 ```{r ATE, warning=FALSE, message=FALSE}
 calculate_ATE(data_01$df, data_02$df, data_03$df, 1)
 calculate_ATE(data_01$df, data_02$df, data_03$df, 0.5)

@@ -86,6 +86,14 @@ p_rf <- function(dataset, num_trees = 50) {
   return(cf$W.hat)
 }
 
+p_glmnet <- function(dataset, k = 10, alpha = 0) {
+  X <- as.matrix(dataset %>% select(-c(Y,W)))
+  cv <- cv.glmnet(X, dataset$W, nfolds = k, alpha = alpha)
+  fitted_glmnet <- glmnet(X, dataset$W, alpha = alpha, lambda = cv$lambda.min)
+  p_glmnet <- predict(fitted_glmnet, X, s = cv$lambda.min, type = "response")
+  return(p_glmnet)
+}
+
 # IPW to account for propensity
 # Only requires propensity regression
 
@@ -166,6 +174,10 @@ calculate_ATE <- function(df1, df2, df3, ratio = 1) {
   p_rf2 = p_rf(df2)
   p_rf3 = p_rf(df3)
   
+  p_glmnet1 = p_glmnet(df1)
+  p_glmnet2 = p_glmnet(df2)
+  p_glmnet3 = p_glmnet(df3)
+  
   # ATE using IPW with logistic propensity score
   tauhat_logistic_ipw1 <- ipw(df1, p_logistic1)
   tauhat_logistic_ipw2 <- ipw(df2, p_logistic2)
@@ -175,6 +187,11 @@ calculate_ATE <- function(df1, df2, df3, ratio = 1) {
   tauhat_rf_ipw1 <- ipw(df1, p_rf1)
   tauhat_rf_ipw2 <- ipw(df2, p_rf2)
   tauhat_rf_ipw3 <- ipw(df3, p_rf3)
+  
+  # ATE using IPW with glmnet propensity score
+  tauhat_glmnet_ipw1 <- ipw(df1, p_glmnet1)
+  tauhat_glmnet_ipw2 <- ipw(df2, p_glmnet2)
+  tauhat_glmnet_ipw3 <- ipw(df3, p_glmnet3)
   
   # ATE using AIPW with logistic propensity score and OLS
   tauhat_logistic_ols_aipw1 <- aipw_ols(df1, p_logistic1)
@@ -200,6 +217,9 @@ calculate_ATE <- function(df1, df2, df3, ratio = 1) {
     IPW_logistic_1 = tauhat_logistic_ipw1,
     IPW_logistic_2 = tauhat_logistic_ipw2,
     IPW_logistic_3 = tauhat_logistic_ipw3,
+    IPW_glmnet_1 = tauhat_glmnet_ipw1,
+    IPW_glmnet_2 = tauhat_glmnet_ipw2,
+    IPW_glmnet_3 = tauhat_glmnet_ipw3,
     AIPW_logistic_ols_1 = tauhat_logistic_ols_aipw1,
     AIPW_logistic_ols_2 = tauhat_logistic_ols_aipw2,
     AIPW_logistic_ols_3 = tauhat_logistic_ols_aipw3,
