@@ -85,6 +85,16 @@ hte_best_03 <- hte_results %>%
   filter(learner == hte_summary_03$learner[hte_summary_03$MRL == min(hte_summary_03$MRL)])
 ```
 
+```{r test_overall_hetero, warning=FALSE, message=FALSE}
+# Hypothesis test for overall treatment heterogeneity
+test_hetero_01 <- test_hetero(as.matrix(hte_best_01[ , covariate_names]), hte_best_01$W, 
+                              hte_best_01$Y, hte_best_01$estimate, NUM_TREES)
+test_hetero_02 <- test_hetero(as.matrix(hte_best_02[ , covariate_names]), hte_best_02$W, 
+                              hte_best_02$Y, hte_best_02$estimate, NUM_TREES)
+test_hetero_03 <- test_hetero(as.matrix(hte_best_03[ , covariate_names]), hte_best_03$W, 
+                              hte_best_03$Y, hte_best_03$estimate, NUM_TREES)
+```
+
 ```{r ATE, warning=FALSE, message=FALSE}
 calculate_ATE(data_01$df, data_02$df, data_03$df, 1)
 calculate_ATE(data_01$df, data_02$df, data_03$df, 0.5)

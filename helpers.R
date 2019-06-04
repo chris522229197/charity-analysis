@@ -539,7 +539,7 @@ compare_glmnets <- function(X, W, Y, ID, k = 10, alpha = 0, num_trees = 50) {
 
 # Omnibus test for heterogeneity
 # Return an lm object
-test_hetero <- function(X, W, Y, ID, tauhat, num_trees = 50) {
+test_hetero <- function(X, W, Y, tauhat, num_trees = 50) {
   Y_forest <- regression_forest(X, Y, num.trees = num_trees)
   W_forest <- regression_forest(X, W, num.trees = num_trees)
   Yhat <- predict(Y_forest)$predictions
