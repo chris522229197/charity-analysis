@@ -15,7 +15,7 @@ source("load-data.R")
 data_01 <- split_control_treated(0, 1, df, covariate_names)
 data_02 <- split_control_treated(0, 2, df, covariate_names)
 data_03 <- split_control_treated(0, 3, df, covariate_names)
-NUM_TREES <- 500
+NUM_TREES <- 1000
 ```
 
 ```{r hte_forests, warning=FALSE, message=FALSE}
