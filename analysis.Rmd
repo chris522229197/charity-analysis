@@ -118,8 +118,11 @@ if (!file.exists("results/test_hetero_summary_03.rds")) {
 ```
 
 ```{r ATE, warning=FALSE, message=FALSE}
-calculate_ATE(data_01$df, data_02$df, data_03$df, 1)
-calculate_ATE(data_01$df, data_02$df, data_03$df, 0.5)
+df1 <- data_01$df %>% select(-ID)
+df2 <- data_02$df %>% select(-ID)
+df3 <- data_03$df %>% select(-ID)
+calculate_ATE(df1, df2, df3, 1)
+calculate_ATE(df1, df2, df3, 0.5)
 ```
 
 ```{r plot_propensities, warning=FALSE, message=FALSE}
