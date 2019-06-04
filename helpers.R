@@ -115,6 +115,16 @@ plot_calibration <- function(p, W) {
   abline(0,1)}
 }
 
+# Plot propensity score against covariates
+
+plot_p_vs_x <- function(p, X, xlab) {
+  if (is.factor(X)) {
+    boxplot(p ~ X, xlab = xlab, ylab = "p")
+  } else {
+    plot(X, p, xlab = xlab)
+  }
+}
+
 # AIPW for doubly robust
 # Requires outcome regression and propensity regression
 # Some freedom for what functions/models we use
