@@ -117,6 +117,17 @@ if (!file.exists("results/test_hetero_summary_03.rds")) {
 }
 ```
 
+```{r policy, warning=FALSE, message=FALSE}
+set.seed(12345)
+donate_cost_ratio <- c(100, 1000, 10000)
+costs <- 1 / donate_cost_ratio
+policy_results_03 <- list()
+for (i in 1:length(costs)) {
+  policy_results_03[[i]] <- opt_policy_forest(data_03$X, data_03$W, data_03$Y, hte_best_03$estimate, data_03$ID, 
+                                             cost = costs[i], k = 10, num_trees = NUM_TREES)
+}
+```
+
 ```{r ATE, warning=FALSE, message=FALSE}
 df1 <- data_01$df %>% select(-ID)
 df2 <- data_02$df %>% select(-ID)

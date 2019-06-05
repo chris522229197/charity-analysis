@@ -639,9 +639,98 @@ estimate_binary_drs <- function(X_train, W_train, Y_train, cate_train,
   
   # Compute the doubly robust scores
   drs_train <- compute_drs(X_train, W_train, Y_train, cate_train, 
-                           What_new, Yhat_new)
-  drs_test <- compute_drs(X_new, W_new, Y_new, cate_new, 
+                           What_train, Yhat_train)
+  drs_new <- compute_drs(X_new, W_new, Y_new, cate_new, 
                           What_new, Yhat_new)
-  return(list("drs_train" = drs_train, "drs_test" = drs_test))
+  return(list("train" = drs_train, "new" = drs_new))
 }
 
+# Compute estimated benefit of plug-in policy over random policy
+benefit_plugin <- function(cate, cost, net_drs) {
+  plugin_assign <- as.numeric(cate > cost) # assignment
+  benefit <- (2 * plugin_assign - 1) * net_drs
+  return(benefit)
+}
+
+# Optimal policy learning with tree-based methods accounting for treatment cost
+# with cross validation
+opt_policy_forest <- function(X, W, Y, cate, ID, cost = 0, k = 10, num_trees = 50) {
+  # Initialize
+  k_trees <- list()
+  Ahats_test <- list()
+  # k-fold cross validation
+  test_folds <- createFolds(Y, k)
+  for (i in 1:k) {
+    # Split data
+    test_fold <- test_folds[[i]]
+    
+    X_train <- X[-test_fold, ]
+    W_train <- W[-test_fold]
+    Y_train <- Y[-test_fold]
+    cate_train <- cate[-test_fold]
+    ID_train <- ID[-test_fold]
+    
+    X_test <- X[test_fold, ]
+    W_test <- W[test_fold]
+    Y_test <- Y[test_fold]
+    cate_test <- cate[test_fold]
+    ID_test <- ID[test_fold]
+    
+    # Estimate the net doubly robust scores (accounting for treatment cost)
+    drs <- estimate_binary_drs(X_train, W_train, Y_train, cate_train, 
+                               X_test, W_test, Y_test, cate_test, 
+                               num_trees = num_trees)
+    net_drs_train <- drs$train - cost
+    net_drs_test <- drs$new - cost
+    
+    # Prepare the data frame for policy learning
+    covaraites <- colnames(X_train)
+    df_train <- as.data.frame(X_train)
+    df_train$label <- factor(sign(net_drs_train))
+    df_train$weight <- abs(net_drs_train)
+    
+    # Fit the optimal policy tree
+    fmla <- as.formula(paste0("label ~ ", paste0(covaraites, collapse = " + ")))
+    policy_tree <- rpart(formula = fmla, data = df_train, weights = df_train$weight)
+    k_trees[[i]] <- policy_tree # store the tree
+    
+    # Predic optimal treatment assignment on the test fold
+    df_test <- as.data.frame(X_test)
+    df_test$label <- factor(sign(net_drs_test))
+    df_test$weight <- abs(net_drs_test)
+    policy_assign_test <- as.numeric(predict(policy_tree, newdata = df_test)[ , "1"] > 0.5)
+    
+    # Calculate optimal policy value over random policy
+    policy_val_test <- (2 * policy_assign_test - 1) * net_drs_test
+    
+    # Calculate plug-in policy value over random policy
+    plugin_val_test <- benefit_plugin(cate_test, cost, net_drs_test)
+    
+    # Combine the results
+    Ahats_test[[i]] <- data.frame("ID" = ID_test, 
+                                  "policy_Ahat" = policy_val_test, 
+                                  "plugin_Ahat" = plugin_val_test, 
+                                  "everyone_Ahat" = net_drs_test, 
+                                  "k_fold" = i)
+    message(paste0("Finished ", i , "/", k, " folds"))
+  }
+  Ahats_test <- Reduce(rbind, Ahats_test)
+  Ahats_test$k_fold <- factor(Ahats_test$k_fold)
+  return(list("Ahats_test" = Ahats_test, "k_trees" = k_trees))
+}
+
+# Summarize the policy learning results
+summarize_opt_policy <- function(Ahats_kfold) {
+  k_summary_df <- Ahats_kfold %>% 
+    group_by(k_fold) %>% 
+    summarise(Ahat_policy = mean(policy_Ahat), 
+              Ahat_plugin = mean(plugin_Ahat), 
+              Ahat_everyone = mean(plugin_Ahat))
+  summary_df <- data.frame("Ahat_policy_mean" = mean(k_summary_df$Ahat_policy), 
+                           "Ahat_policy_sd" = sd(k_summary_df$Ahat_policy), 
+                           "Ahat_plugin_mean" = mean(k_summary_df$Ahat_plugin), 
+                           "Ahat_plugin_sd" = sd(k_summary_df$Ahat_plugin), 
+                           "Ahat_everyone_mean" = mean(k_summary_df$Ahat_everyone), 
+                           "Ahat_everyone_sd" = sd(k_summary_df$Ahat_everyone))
+  return(summary_df)
+}
