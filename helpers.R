@@ -117,11 +117,11 @@ plot_calibration <- function(p, W) {
 
 # Plot propensity score against covariates
 
-plot_p_vs_x <- function(p, X, xlab) {
+plot_yx <- function(y, X, ylab, xlab) {
   if (is.factor(X)) {
-    boxplot(p ~ X, xlab = xlab, ylab = "p")
+    boxplot(y ~ X, xlab = xlab, ylab = ylab)
   } else {
-    plot(X, p, xlab = xlab)
+    plot(X, y, xlab = xlab, ylab = ylab)
   }
 }
 
@@ -581,3 +581,29 @@ summarize_hte_results <- function(hte_results, comparison) {
     summarise(MRL = mean(rloss), SDRL = sd(rloss))
   return(hte_summary)
 }
+
+# Test whether there are meaningful differences between high CATE and low CATE groups across covariates
+test_CATE <- function(df, cate_name, x, variable = "continuous") {
+  cate <- df %>% select(cate_name)
+  x <- df %>% select(x)
+  med_cate <- median(cate[[1]])
+  idx <- cate %>% transmute(case_when(cate >= med_cate ~ 1,
+                                      cate < med_cate ~ 0))
+  x0 <- x[idx == 0, ]
+  x1 <- x[idx == 1, ]
+  
+  if (variable == "continuous") {
+    t.test(x0, x1)  
+  } else {
+    num_of_successes_in_group_0 <- sum(x0)
+    num_of_successes_in_group_1 <- sum(x1)
+    count_of_group_0 <- length(x0)
+    count_of_group_1 <- length(x1)
+    prop.test(c(num_of_successes_in_group_0, num_of_successes_in_group_1), 
+              c(count_of_group_0, count_of_group_1), 
+              alternative = "two.sided",
+              correct = FALSE)
+  }
+}
+
+
