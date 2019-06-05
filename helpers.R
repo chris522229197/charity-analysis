@@ -606,4 +606,42 @@ test_CATE <- function(df, cate_name, x, variable = "continuous") {
   }
 }
 
+# Compute doubly robust scores
+compute_drs <- function(X, W, Y, cate, What, Yhat) {
+  # Estimate E[Y|X, W=0] and E[Y|X, W=1]
+  muhat0 <- Yhat - What * cate
+  muhat1 <- Yhat + (1 - What) * cate
+  
+  # Compute doubly robust scores for the training set
+  resid <- Y - W * muhat1 - (1 - W) * muhat0
+  weights <- W - What / (What * (1 - What))
+  drs <- cate + weights * resid
+  return(drs)
+}
+
+# Estimate the doubly robust score for binary assignment with training
+# and new data with forest-based methods.
+# This does not account for the treatment cost.
+estimate_binary_drs <- function(X_train, W_train, Y_train, cate_train, 
+                                X_new, W_new, Y_new, cate_new, 
+                                num_trees = 50) {
+  # Fit the outcome and propensity forests
+  Y_forest <- regression_forest(X_train, Y_train, num.trees = num_trees)
+  W_forest <- regression_forest(X_train, W_train, num.trees = num_trees)
+  
+  # Find Y and W estimates for the training set
+  Yhat_train <- predict(Y_forest)$predictions # OOB
+  What_train <- predict(W_forest)$predictions # OOB
+  
+  # Find Y and W estimates for the new data
+  Yhat_new <- predict(Y_forest, newdata = X_new)$predictions
+  What_new <- predict(W_forest, newdata = X_new)$predictions
+  
+  # Compute the doubly robust scores
+  drs_train <- compute_drs(X_train, W_train, Y_train, cate_train, 
+                           What_new, Yhat_new)
+  drs_test <- compute_drs(X_new, W_new, Y_new, cate_new, 
+                          What_new, Yhat_new)
+  return(list("drs_train" = drs_train, "drs_test" = drs_test))
+}
 
