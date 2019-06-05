@@ -80,7 +80,7 @@ p_logistic <- function(dataset) {
   return(p_logistic)
 }
 
-p_rf <- function(dataset, num_trees = 50) {
+p_rf <- function(dataset, num_trees = NUM_TREES) {
   X <- dataset %>% select(-c(Y,W))
   cf <- causal_forest(X, dataset$Y, dataset$W, num.trees = num_trees)
   return(cf$W.hat)
@@ -147,7 +147,7 @@ aipw_ols <- function(dataset, p) {
   c(ATE=tau.hat, lower_ci = tau.hat - 1.96 * se.hat, upper_ci = tau.hat + 1.96 * se.hat)
 }
 
-aipw_rf <- function(dataset, num_trees = 50) {
+aipw_rf <- function(dataset, num_trees = NUM_TREES) {
   X <- dataset %>% select(-c(Y,W))
   cf <- causal_forest(X, dataset$Y, dataset$W, num.trees = num_trees)
   p <- cf$W.hat
