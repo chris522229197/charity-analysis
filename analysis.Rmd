@@ -160,9 +160,13 @@ if (!file.exists("results/ate_results_reduced_table.rds")) {
 } else {
   ate_results_reduced <- readRDS("results/ate_results_reduced_table.rds")
 }
+print(ate_results)
+print(ate_results_reduced)
 ```
 
 ```{r plot_ATE_estimates, warning=FALSE, message=FALSE}
+ate_results$Estimator <- factor(ate_results$Estimator, levels = ate_results$Estimator)
+ate_results_reduced$Estimator <- factor(ate_results_reduced$Estimator, levels = ate_results_reduced$Estimator)
 plot_ATE_estimates(ate_results)
 plot_ATE_estimates(ate_results_reduced)
 ```

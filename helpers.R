@@ -271,7 +271,17 @@ plot_ATE_estimates <- function(estimators) {
   f <- ggplot(estimators, aes(x = Estimator, y = ATE, ymin = lower_ci, ymax = upper_ci))
   f + geom_crossbar(aes(color = treatment_lvl),
                     position = position_dodge(1)) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_x_discrete(labels=c(rep("Difference in means", 3), 
+                              rep("OLS", 3), 
+                              rep("IPW (logistic)", 3), 
+                              rep("IPW (ridge)",3), 
+                              rep("AIPW (logistic-OLS)", 3), 
+                              rep("AIPW (forest-forest)", 3), 
+                              rep("AIPW (ridge-ridge)", 3),
+                              rep("AIPW ridge ridge", 3))) +
+    labs(color = "Matching Ratios") +
+    scale_color_discrete(labels = c("1:1", "2:1", "3:1"))
 }
 
 # S-learner OOB estimates with regression forest
