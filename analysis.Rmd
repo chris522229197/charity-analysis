@@ -62,7 +62,7 @@ if (!file.exists("results/results_glmnets.rds")) {
 }
 ```
 
-```{r best_hte_learners, warning=FALSE, message=FALSE}
+```{r summarize_hte_learners, warning=FALSE, message=FALSE}
 # Combine all the results
 hte_results <- rbind(results_forests, results_glmnets)
 
@@ -71,6 +71,27 @@ hte_summary_01 <- summarize_hte_results(hte_results, "0 vs 1")
 hte_summary_02 <- summarize_hte_results(hte_results, "0 vs 2")
 hte_summary_03 <- summarize_hte_results(hte_results, "0 vs 3")
 
+# Print out the results
+cat("0 vs 1", "\n")
+hte_summary_01$MRL <- scientific(hte_summary_01$MRL)
+hte_summary_01$SDRL <- scientific(hte_summary_01$SDRL)
+print(hte_summary_01)
+cat("\n\n\n")
+
+cat("0 vs 2", "\n")
+hte_summary_02$MRL <- scientific(hte_summary_02$MRL)
+hte_summary_02$SDRL <- scientific(hte_summary_02$SDRL)
+print(hte_summary_02)
+cat("\n\n\n")
+
+cat("0 vs 3", "\n")
+hte_summary_03$MRL <- scientific(hte_summary_03$MRL)
+hte_summary_03$SDRL <- scientific(hte_summary_03$SDRL)
+print(hte_summary_03)
+cat("\n\n\n")
+```
+
+```{r best_hte_learners, warning=FALSE, message=FALSE}
 # Find the best learners
 hte_best_01 <- hte_results %>% 
   filter(compare == "0 vs 1") %>% 
