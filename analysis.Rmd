@@ -146,8 +146,34 @@ for (i in 1:length(costs)) {
 df1 <- data_01$df %>% select(-ID)
 df2 <- data_02$df %>% select(-ID)
 df3 <- data_03$df %>% select(-ID)
-calculate_ATE(df1, df2, df3, 1)
-calculate_ATE(df1, df2, df3, 0.5)
+
+if (!file.exists("results/ate_results_table.rds")) {
+  ate_results <- calculate_ATE(df1, df2, df3, 1)
+  saveRDS(ate_results, file = "results/ate_results_table.rds")
+} else {
+  ate_results <- readRDS("results/ate_results_table.rds")
+}
+
+if (!file.exists("results/ate_results_reduced_table.rds")) {
+  ate_results_reduced <- calculate_ATE(df1, df2, df3, 0.5)
+  saveRDS(ate_results_reduced, file = "results/ate_results_reduced_table.rds")
+} else {
+  ate_results_reduced <- readRDS("results/ate_results_reduced_table.rds")
+}
+```
+
+```{r plot_ATE_estimates, warning=FALSE, message=FALSE}
+plot_ATE_estimates(ate_results)
+plot_ATE_estimates(ate_results_reduced)
+```
+
+```{r plot_calibration, warning=FALSE, message=FALSE}
+p_logistic1 = p_logistic(df1)
+p_logistic2 = p_logistic(df2)
+p_logistic3 = p_logistic(df3)
+plot_calibration(p_logistic1, df1$W)
+plot_calibration(p_logistic2, df2$W)
+plot_calibration(p_logistic3, df3$W)
 ```
 
 ```{r plot_propensities, warning=FALSE, message=FALSE}

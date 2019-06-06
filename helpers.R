@@ -237,10 +237,6 @@ calculate_ATE <- function(df1, df2, df3, ratio = 1) {
   tauhat_glmnet_aipw2 <- aipw_glmnet(df2, p_glmnet2)
   tauhat_glmnet_aipw3 <- aipw_glmnet(df3, p_glmnet3)
 
-  plot_calibration(p_logistic1, df1$W)
-  plot_calibration(p_logistic2, df2$W)
-  plot_calibration(p_logistic3, df3$W)
-
   all_estimators = rbind(
     RCT_gold_standard_1 = tauhat_rct1,
     RCT_gold_standard_2 = tauhat_rct2,
@@ -267,9 +263,12 @@ calculate_ATE <- function(df1, df2, df3, ratio = 1) {
   all_estimators <- data.frame(all_estimators)
   all_estimators <- add_rownames(all_estimators, "Estimator")
   all_estimators$treatment_lvl <- substr(all_estimators$Estimator, nchar(all_estimators$Estimator), nchar(all_estimators$Estimator))
-  print(all_estimators)
+  return(all_estimators)
+}
 
-  f <- ggplot(all_estimators, aes(x = Estimator, y = ATE, ymin = lower_ci, ymax = upper_ci))
+# Barplot of ATE Estimates
+plot_ATE_estimates <- function(estimators) {
+  f <- ggplot(estimators, aes(x = Estimator, y = ATE, ymin = lower_ci, ymax = upper_ci))
   f + geom_crossbar(aes(color = treatment_lvl),
                     position = position_dodge(1)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
