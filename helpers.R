@@ -117,11 +117,11 @@ plot_calibration <- function(p, W, ...) {
 
 # Plot propensity score against covariates
 
-plot_yx <- function(y, X, ylab, xlab) {
+plot_yx <- function(y, X, ylab, xlab, ...) {
   if (is.factor(X)) {
-    boxplot(y ~ X, xlab = xlab, ylab = ylab)
+    boxplot(y ~ X, xlab = xlab, ylab = ylab,...)
   } else {
-    plot(X, y, xlab = xlab, ylab = ylab)
+    plot(X, y, xlab = xlab, ylab = ylab, ...)
   }
 }
 

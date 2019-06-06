@@ -199,32 +199,38 @@ plot_calibration(p_logistic3, df3$W, ylab = "Average treatment", xlab = "Estimat
 
 ```{r plot_propensities, warning=FALSE, message=FALSE, fig.width=8.5, fig.height=8.5}
 par(mfrow=c(3,3))
-plot_yx(p_logistic(data_01$df), data_01$df$pblack, "Estimated Propensity", "Proportion black")
-plot_yx(p_logistic(data_01$df), data_01$df$median_hhincome, "Estimated Propensity", "Median household income")
-plot_yx(p_logistic(data_01$df), as.factor(data_01$df$red0), "Estimated Propensity", "Proportion living in red state")
+plot_yx(p_logistic(data_01$df), data_01$df$pblack, "Estimated propensity", "Proportion black", main = "Matching 1:1")
+plot_yx(p_logistic(data_01$df), data_01$df$median_hhincome, "Estimated propensity", "Median household income")
+plot_yx(p_logistic(data_01$df), as.factor(data_01$df$red0), "Estimated propensity", "Living in red state", 
+        names = c("No", "Yes"))
 
-plot_yx(p_logistic(data_02$df), data_02$df$pblack, "Estimated Propensity", "Proportion black")
-plot_yx(p_logistic(data_02$df), data_02$df$median_hhincome, "Estimated Propensity", "Median household income")
-plot_yx(p_logistic(data_02$df), as.factor(data_02$df$red0), "Estimated Propensity", "Proportion living in red state")
+plot_yx(p_logistic(data_02$df), data_02$df$pblack, "Estimated propensity", "Proportion black", main = "Matching 2:1")
+plot_yx(p_logistic(data_02$df), data_02$df$median_hhincome, "Estimated propensity", "Median household income")
+plot_yx(p_logistic(data_02$df), as.factor(data_02$df$red0), "Estimated propensity", "Living in red state", 
+        names = c("No", "Yes"))
 
-plot_yx(p_logistic(data_03$df), data_03$df$pblack, "Estimated Propensity", "Proportion black")
-plot_yx(p_logistic(data_03$df), data_03$df$median_hhincome, "Estimated Propensity", "Median household income")
-plot_yx(p_logistic(data_03$df), as.factor(data_03$df$red0), "Estimated Propensity", "Proportion living in red state")
+plot_yx(p_logistic(data_03$df), data_03$df$pblack, "Estimated propensity", "Proportion black", main = "Matching 3:1")
+plot_yx(p_logistic(data_03$df), data_03$df$median_hhincome, "Estimated propensity", "Median household income")
+plot_yx(p_logistic(data_03$df), as.factor(data_03$df$red0), "Estimated propensity", "Living in red state", 
+        names = c("No", "Yes"))
 ```
 
 ```{r plot_CATE, warning=FALSE, message=FALSE, fig.width=8.5, fig.height=8.5}
 par(mfrow=c(3,3))
-plot_yx(hte_best_01$estimate, hte_best_01$pblack, "estimated_CATE", "pblack")
-plot_yx(hte_best_01$estimate, hte_best_01$median_hhincome, "estimated_CATE", "median_hhincome")
-plot_yx(hte_best_01$estimate, as.factor(hte_best_01$red0), "estimated_CATE", "red0")
+plot_yx(hte_best_01$estimate, hte_best_01$pblack, "Estimated CATE (X-ridge)", "Proportion black", main = "Matching 1:1")
+plot_yx(hte_best_01$estimate, hte_best_01$median_hhincome, "Estimated CATE (X-ridge)", "Median household income")
+plot_yx(hte_best_01$estimate, as.factor(hte_best_01$red0), "Estimated CATE (X-ridge)", "Living in red state", 
+        names = c("No", "Yes"))
 
-plot_yx(hte_best_02$estimate, hte_best_02$pblack, "estimated_CATE", "pblack")
-plot_yx(hte_best_02$estimate, hte_best_02$median_hhincome, "estimated_CATE", "median_hhincome")
-plot_yx(hte_best_02$estimate, as.factor(hte_best_02$red0), "estimated_CATE", "red0")
+plot_yx(hte_best_02$estimate, hte_best_02$pblack, "Estimated CATE (X-ridge)", "Proportion black", main = "Matching 2:1")
+plot_yx(hte_best_02$estimate, hte_best_02$median_hhincome, "Estimated CATE (X-ridge)", "Median household income")
+plot_yx(hte_best_02$estimate, as.factor(hte_best_02$red0), "Estimated CATE (X-ridge)", "Living in red state", 
+        names = c("No", "Yes"))
 
-plot_yx(hte_best_03$estimate, hte_best_03$pblack, "estimated_CATE", "pblack")
-plot_yx(hte_best_03$estimate, hte_best_03$median_hhincome, "estimated_CATE", "median_hhincome")
-plot_yx(hte_best_03$estimate, as.factor(hte_best_03$red0), "estimated_CATE", "red0")
+plot_yx(hte_best_03$estimate, hte_best_03$pblack, "Estimated CATE (X-forest)", "Proportion black", main = "Matching 3:1")
+plot_yx(hte_best_03$estimate, hte_best_03$median_hhincome, "Estimated CATE (X-forest)", "Median household income")
+plot_yx(hte_best_03$estimate, as.factor(hte_best_03$red0), "Estimated CATE (X-forest)", "Living in red state", 
+        names = c("No", "Yes"))
 
 ```
 
