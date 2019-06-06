@@ -647,14 +647,35 @@ estimate_binary_drs <- function(X_train, W_train, Y_train, cate_train,
 
 # Compute estimated benefit of plug-in policy over random policy
 benefit_plugin <- function(cate, cost, net_drs) {
-  plugin_assign <- as.numeric(cate > cost) # assignment
+  plugin_assign <- as.numeric(cate >= cost) # assignment
   benefit <- (2 * plugin_assign - 1) * net_drs
   return(benefit)
 }
 
+# Summarize the policy learning results
+summarize_opt_policy <- function(Ahats_kfold) {
+  k_summary_dfs <- list()
+  for (k in unique(Ahats_kfold$k_fold)) {
+    k_df <- Ahats_kfold %>% filter(k_fold == k)
+    k_summary_df <- data.frame("Ahat_policy" = mean(k_df$policy_Ahat), 
+                               "Ahat_plugin" = mean(k_df$plugin_Ahat), 
+                               "Ahat_everyone" = mean(k_df$everyone_Ahat))
+    k_summary_dfs[[k]] <- k_summary_df
+  }
+  k_summary <- Reduce(rbind, k_summary_dfs)
+  summary_df <- data.frame("Ahat_policy_mean" = mean(k_summary$Ahat_policy), 
+                           "Ahat_policy_sd" = sd(k_summary$Ahat_policy), 
+                           "Ahat_plugin_mean" = mean(k_summary$Ahat_plugin), 
+                           "Ahat_plugin_sd" = sd(k_summary$Ahat_plugin), 
+                           "Ahat_everyone_mean" = mean(k_summary$Ahat_everyone), 
+                           "Ahat_everyone_sd" = sd(k_summary$Ahat_everyone))
+  return(summary_df)
+}
+
 # Optimal policy learning with tree-based methods accounting for treatment cost
 # with cross validation
-opt_policy_forest <- function(X, W, Y, cate, ID, cost = 0, k = 10, num_trees = 50) {
+opt_policy_forest <- function(X, W, Y, cate, ID, cost = 0, k = 10, num_trees = 50, 
+                              detailed = TRUE) {
   # Initialize
   k_trees <- list()
   Ahats_test <- list()
@@ -716,21 +737,8 @@ opt_policy_forest <- function(X, W, Y, cate, ID, cost = 0, k = 10, num_trees = 5
   }
   Ahats_test <- Reduce(rbind, Ahats_test)
   Ahats_test$k_fold <- factor(Ahats_test$k_fold)
+  if (!detailed) {
+    Ahats_test <- summarize_opt_policy(Ahats_test)
+  }
   return(list("Ahats_test" = Ahats_test, "k_trees" = k_trees))
-}
-
-# Summarize the policy learning results
-summarize_opt_policy <- function(Ahats_kfold) {
-  k_summary_df <- Ahats_kfold %>% 
-    group_by(k_fold) %>% 
-    summarise(Ahat_policy = mean(policy_Ahat), 
-              Ahat_plugin = mean(plugin_Ahat), 
-              Ahat_everyone = mean(plugin_Ahat))
-  summary_df <- data.frame("Ahat_policy_mean" = mean(k_summary_df$Ahat_policy), 
-                           "Ahat_policy_sd" = sd(k_summary_df$Ahat_policy), 
-                           "Ahat_plugin_mean" = mean(k_summary_df$Ahat_plugin), 
-                           "Ahat_plugin_sd" = sd(k_summary_df$Ahat_plugin), 
-                           "Ahat_everyone_mean" = mean(k_summary_df$Ahat_everyone), 
-                           "Ahat_everyone_sd" = sd(k_summary_df$Ahat_everyone))
-  return(summary_df)
 }
