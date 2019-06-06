@@ -308,7 +308,7 @@ for (comparison in names(df_lst)) {
                                     x_name = test_covs[i], 
                                     x_type = test_cov_types[i])
     print(t_test)
-    cat("Corrected p-value: ", t_test$p.value / (length(test_covs) * length(df_lst)), "\n\n")
+    cat("Corrected p-value: ", min(c(t_test$p.value*length(test_covs)*length(df_lst), 1)), "\n\n")
   }
   cat("\n\n\n")
 }
