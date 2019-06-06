@@ -39,7 +39,10 @@ split_control_treated <- function(control_lab, treated_lab, df,
 # Difference of the mean outcome between treated and control group
 # This is the classical way to find ATE in a randomized trial
 
-difference_in_means <- function(dataset) {
+difference_in_means <- function(dataset, alpha_lvl = 0.05, correction = 3) {
+  # Calculate Bonferroni corrected z-value
+  z <- qnorm(1 - (alpha_lvl / correction))
+  
   # NOTE: Code from Exploring Causal Inference in Experimental and Observational
   # Studies - Part 1 (Susan Athey, Stefan Wager, and Nicolaj Norgaard Muhlbach)
   # Filter treatment / control observations, pulls outcome variable as a vector
@@ -51,14 +54,17 @@ difference_in_means <- function(dataset) {
   tauhat <- mean(y1) - mean(y0)
   # 95% Confidence intervals
   se_hat <- sqrt( var(y0)/(n0-1) + var(y1)/(n1-1) )
-  lower_ci <- tauhat - 1.96 * se_hat
-  upper_ci <- tauhat + 1.96 * se_hat
+  lower_ci <- tauhat - z * se_hat
+  upper_ci <- tauhat + z * se_hat
   return(c(ATE = tauhat, lower_ci = lower_ci, upper_ci = upper_ci))
 }
 
 # ATE with OLS for unconfoundedness assumption
 
-ate_condmean_ols <- function(dataset) {
+ate_condmean_ols <- function(dataset, alpha_lvl = 0.05, correction = 3) {
+  # Calculate Bonferroni corrected z-value
+  z <- qnorm(1 - (alpha_lvl / correction))
+  
   # NOTE: Code from Exploring Causal Inference in Experimental and Observational
   # Studies - Part 1 (Susan Athey, Stefan Wager, and Nicolaj Norgaard Muhlbach)
   df_mod_centered = data.frame(scale(dataset, center = TRUE, scale = FALSE))
@@ -68,7 +74,7 @@ ate_condmean_ols <- function(dataset) {
   lm.interact = lm(Y ~ . * W, data = df_mod_centered)
   tau.hat = as.numeric(coef(lm.interact)["W"])
   se.hat = as.numeric(sqrt(vcovHC(lm.interact)["W", "W"]))
-  c(ATE=tau.hat, lower_ci = tau.hat - 1.96 * se.hat, upper_ci = tau.hat + 1.96 * se.hat)
+  c(ATE=tau.hat, lower_ci = tau.hat - z * se.hat, upper_ci = tau.hat + z * se.hat)
 }
 
 # Calculate propensity score
@@ -97,7 +103,10 @@ p_glmnet <- function(dataset, k = 10, alpha = 0) {
 # IPW to account for propensity
 # Only requires propensity regression
 
-ipw <- function(dataset, p) {
+ipw <- function(dataset, p, alpha_lvl = 0.05, correction = 3) {
+  # Calculate Bonferroni corrected z-value
+  z <- qnorm(1 - (alpha_lvl / correction))
+  
   # NOTE: Code from Exploring Causal Inference in Experimental and Observational
   # Studies - Part 1 (Susan Athey, Stefan Wager, and Nicolaj Norgaard Muhlbach)
   W <- dataset$W
@@ -105,7 +114,7 @@ ipw <- function(dataset, p) {
   G <- ((W - p) * Y) / (p * (1 - p))
   tau.hat <- mean(G)
   se.hat <- sqrt(var(G) / (length(G) - 1))
-  c(ATE=tau.hat, lower_ci = tau.hat - 1.96 * se.hat, upper_ci = tau.hat + 1.96 * se.hat)
+  c(ATE=tau.hat, lower_ci = tau.hat - z * se.hat, upper_ci = tau.hat + z * se.hat)
 }
 
 # Plot the calibration of propensity score
@@ -129,7 +138,10 @@ plot_yx <- function(y, X, ylab, xlab, ...) {
 # Requires outcome regression and propensity regression
 # Some freedom for what functions/models we use
 
-aipw_ols <- function(dataset, p) {
+aipw_ols <- function(dataset, p, alpha_lvl = 0.05, correction = 3) {
+  # Calculate Bonferroni corrected z-value
+  z <- qnorm(1 - (alpha_lvl / correction))
+  
   # NOTE: Code from Exploring Causal Inference in Experimental and Observational
   # Studies - Part 1 (Susan Athey, Stefan Wager, and Nicolaj Norgaard Muhlbach)
   ols.fit = lm(Y ~ W * ., data = dataset)
@@ -144,20 +156,26 @@ aipw_ols <- function(dataset, p) {
     ((dataset$W - p) * (dataset$Y - actual_pred)) / (p * (1 - p))
   tau.hat <- mean(G)
   se.hat <- sqrt(var(G) / (length(G) - 1))
-  c(ATE=tau.hat, lower_ci = tau.hat - 1.96 * se.hat, upper_ci = tau.hat + 1.96 * se.hat)
+  c(ATE=tau.hat, lower_ci = tau.hat - z * se.hat, upper_ci = tau.hat + z * se.hat)
 }
 
-aipw_rf <- function(dataset, num_trees = NUM_TREES) {
+aipw_rf <- function(dataset, num_trees = NUM_TREES, alpha_lvl = 0.05, correction = 3) {
+  # Calculate Bonferroni corrected z-value
+  z <- qnorm(1 - (alpha_lvl / correction))
+  
   X <- dataset %>% select(-c(Y,W))
   cf <- causal_forest(X, dataset$Y, dataset$W, num.trees = num_trees)
   p <- cf$W.hat
   ate_cf_aipw = average_treatment_effect(cf)
   c(ATE=ate_cf_aipw["estimate"],
-    lower_ci=ate_cf_aipw["estimate"] - 1.96 * ate_cf_aipw["std.err"],
-    upper_ci=ate_cf_aipw["estimate"] + 1.96 * ate_cf_aipw["std.err"])
+    lower_ci=ate_cf_aipw["estimate"] - z * ate_cf_aipw["std.err"],
+    upper_ci=ate_cf_aipw["estimate"] + z * ate_cf_aipw["std.err"])
 }
 
-aipw_glmnet <- function(dataset, p, k = 10, alpha = 0) {
+aipw_glmnet <- function(dataset, p, k = 10, alpha = 0, alpha_lvl = 0.05, correction = 3) {
+  # Calculate Bonferroni corrected z-value
+  z <- qnorm(1 - (alpha_lvl / correction))
+  
   Y <- dataset$Y
   W <- dataset$W
   X <- data.matrix(dataset %>% select(-c(Y,W)))
@@ -173,7 +191,7 @@ aipw_glmnet <- function(dataset, p, k = 10, alpha = 0) {
     ((dataset$W - p) * (dataset$Y - actual_pred)) / (p * (1 - p))
   tau.hat <- mean(G)
   se.hat <- sqrt(var(G) / (length(G) - 1))
-  c(ATE=tau.hat, lower_ci = tau.hat - 1.96 * se.hat, upper_ci = tau.hat + 1.96 * se.hat)
+  c(ATE=tau.hat, lower_ci = tau.hat - z * se.hat, upper_ci = tau.hat + z * se.hat)
 }
 
 # For ATE, show the results of different methods. Talk about how they compare to each other.
