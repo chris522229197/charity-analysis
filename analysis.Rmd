@@ -182,17 +182,17 @@ plot_calibration(p_logistic3, df3$W)
 
 ```{r plot_propensities, warning=FALSE, message=FALSE}
 par(mfrow=c(3,3))
-plot_yx(p_logistic(data_01$df), data_01$df$pblack, "p_logistic", "pblack")
-plot_yx(p_logistic(data_01$df), data_01$df$median_hhincome, "p_logistic", "median_hhincome")
-plot_yx(p_logistic(data_01$df), as.factor(data_01$df$red0), "p_logistic", "red state")
+plot_yx(p_logistic(data_01$df), data_01$df$pblack, "Estimated Propensity", "Proportion black")
+plot_yx(p_logistic(data_01$df), data_01$df$median_hhincome, "Estimated Propensity", "Median household income")
+plot_yx(p_logistic(data_01$df), as.factor(data_01$df$red0), "Estimated Propensity", "Proportion living in red state")
 
-plot_yx(p_logistic(data_02$df), data_02$df$pblack, "p_logistic", "pblack")
-plot_yx(p_logistic(data_02$df), data_02$df$median_hhincome, "p_logistic", "median_hhincome")
-plot_yx(p_logistic(data_02$df), as.factor(data_02$df$red0), "p_logistic", "red state")
+plot_yx(p_logistic(data_02$df), data_02$df$pblack, "Estimated Propensity", "Proportion black")
+plot_yx(p_logistic(data_02$df), data_02$df$median_hhincome, "Estimated Propensity", "Median household income")
+plot_yx(p_logistic(data_02$df), as.factor(data_02$df$red0), "Estimated Propensity", "Proportion living in red state")
 
-plot_yx(p_logistic(data_03$df), data_03$df$pblack, "p_logistic", "pblack")
-plot_yx(p_logistic(data_03$df), data_03$df$median_hhincome, "p_logistic", "median_hhincome")
-plot_yx(p_logistic(data_03$df), as.factor(data_03$df$red0), "p_logistic", "red state")
+plot_yx(p_logistic(data_03$df), data_03$df$pblack, "Estimated Propensity", "Proportion black")
+plot_yx(p_logistic(data_03$df), data_03$df$median_hhincome, "Estimated Propensity", "Median household income")
+plot_yx(p_logistic(data_03$df), as.factor(data_03$df$red0), "Estimated Propensity", "Proportion living in red state")
 ```
 
 ```{r plot_CATE, warning=FALSE, message=FALSE} 
