@@ -118,10 +118,11 @@ if (!file.exists("results/test_hetero_summary_03.rds")) {
 ```
 
 ```{r policy, warning=FALSE, message=FALSE}
+# Fit the models and get results
+donate_cost_ratio <- c(10, 100, 1000, 10000)
+costs <- 1 / donate_cost_ratio
 if (!file.exists("results/policy_results_03.rds")) {
   set.seed(123)
-  donate_cost_ratio <- c(10, 100, 1000, 10000)
-  costs <- 1 / donate_cost_ratio
   policy_results_03 <- list()
   for (i in 1:length(costs)) {
     policy_results_03[[i]] <- opt_policy_forest(data_03$X, data_03$W, data_03$Y, hte_best_03$estimate, data_03$ID, 
@@ -130,6 +131,14 @@ if (!file.exists("results/policy_results_03.rds")) {
   saveRDS(policy_results_03, file = "results/policy_results_03.rds") 
 } else {
   policy_results_03 <- readRDS("results/policy_results_03.rds")
+}
+
+# Result summaries
+policy_summary_dfs <- list()
+for (i in 1:length(costs)) {
+  policy_summary_dfs[[i]] <- summarize_opt_policy(policy_results_03[[i]]$Ahats_test)
+  print(paste0("Donation:cost ratio = ", donate_cost_ratio[i]))
+  print(policy_summary_dfs[[i]])
 }
 ```
 
