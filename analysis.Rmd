@@ -75,14 +75,27 @@ hte_summary_03 <- summarize_hte_results(hte_results, "0 vs 3")
 hte_best_01 <- hte_results %>% 
   filter(compare == "0 vs 1") %>% 
   filter(learner == hte_summary_01$learner[hte_summary_01$MRL == min(hte_summary_01$MRL)])
+hte_best_learner_01 <- unique(hte_best_01$learner)
+print(paste0("Best learner for 0 vs 1: ", hte_best_learner_01))
 
 hte_best_02 <- hte_results %>% 
   filter(compare == "0 vs 2") %>% 
   filter(learner == hte_summary_02$learner[hte_summary_02$MRL == min(hte_summary_02$MRL)])
+hte_best_learner_02 <- unique(hte_best_02$learner)
+print(paste0("Best learner for 0 vs 2: ", hte_best_learner_02))
 
 hte_best_03 <- hte_results %>% 
   filter(compare == "0 vs 3") %>%
   filter(learner == hte_summary_03$learner[hte_summary_03$MRL == min(hte_summary_03$MRL)])
+hte_best_leanrer_03 <- unique(hte_best_03$learner)
+print(paste0("Best learner for 0 vs 3: ", hte_best_leanrer_03))
+```
+
+```{r plot_cate_dist, warning=FALSE, message=FALSE, fig.width=9, fig.height=4}
+par(mfrow = c(1, 3))
+hist(hte_best_01$estimate, breaks = 250, ylim = c(0, 1400), xlab = "Estimated CATE (X-ridge)", main = "Matching 1:1")
+hist(hte_best_02$estimate, breaks = 250, ylim = c(0, 1400), xlab = "Estimated CATE (X-ridge)", main = "Matching 2:1")
+hist(hte_best_03$estimate, breaks = 250, ylim = c(0, 1400), xlab = "Estimated CATE (X-forest)", main = "Matching 3:1")
 ```
 
 ```{r test_overall_hetero, warning=FALSE, message=FALSE}
@@ -171,16 +184,20 @@ plot_ATE_estimates(ate_results)
 plot_ATE_estimates(ate_results_reduced)
 ```
 
-```{r plot_calibration, warning=FALSE, message=FALSE}
+```{r plot_calibration, warning=FALSE, message=FALSE, fig.width=9, fig.height=4}
 p_logistic1 = p_logistic(df1)
 p_logistic2 = p_logistic(df2)
 p_logistic3 = p_logistic(df3)
-plot_calibration(p_logistic1, df1$W)
-plot_calibration(p_logistic2, df2$W)
-plot_calibration(p_logistic3, df3$W)
+par(mfrow = c(1, 3))
+plot_calibration(p_logistic1, df1$W, ylab = "Average treatment", xlab = "Estimated propensity", 
+                 xlim = c(0.36, 0.44), main = "Matching 1:1")
+plot_calibration(p_logistic2, df2$W, ylab = "Average treatment", xlab = "Estimated propensity", 
+                 xlim = c(0.36, 0.44), main = "Matching 2:1")
+plot_calibration(p_logistic3, df3$W, ylab = "Average treatment", xlab = "Estimated propensity", 
+                 xlim = c(0.36, 0.44), main = "Matching 3:1")
 ```
 
-```{r plot_propensities, warning=FALSE, message=FALSE}
+```{r plot_propensities, warning=FALSE, message=FALSE, fig.width=8.5, fig.height=8.5}
 par(mfrow=c(3,3))
 plot_yx(p_logistic(data_01$df), data_01$df$pblack, "Estimated Propensity", "Proportion black")
 plot_yx(p_logistic(data_01$df), data_01$df$median_hhincome, "Estimated Propensity", "Median household income")
@@ -195,8 +212,7 @@ plot_yx(p_logistic(data_03$df), data_03$df$median_hhincome, "Estimated Propensit
 plot_yx(p_logistic(data_03$df), as.factor(data_03$df$red0), "Estimated Propensity", "Proportion living in red state")
 ```
 
-```{r plot_CATE, warning=FALSE, message=FALSE} 
-source("helpers.R")
+```{r plot_CATE, warning=FALSE, message=FALSE, fig.width=8.5, fig.height=8.5}
 par(mfrow=c(3,3))
 plot_yx(hte_best_01$estimate, hte_best_01$pblack, "estimated_CATE", "pblack")
 plot_yx(hte_best_01$estimate, hte_best_01$median_hhincome, "estimated_CATE", "median_hhincome")

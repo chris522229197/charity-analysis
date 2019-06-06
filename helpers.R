@@ -110,8 +110,8 @@ ipw <- function(dataset, p) {
 
 # Plot the calibration of propensity score
 
-plot_calibration <- function(p, W) {
-  {plot(smooth.spline(p, W, df = 4))
+plot_calibration <- function(p, W, ...) {
+  {plot(smooth.spline(p, W, df = 4), ...)
   abline(0,1)}
 }
 
