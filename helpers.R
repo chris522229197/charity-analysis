@@ -268,10 +268,14 @@ calculate_ATE <- function(df1, df2, df3, ratio = 1) {
 
 # Barplot of ATE Estimates
 plot_ATE_estimates <- function(estimators) {
-  f <- ggplot(estimators, aes(x = Estimator, y = ATE, ymin = lower_ci, ymax = upper_ci))
-  f + geom_crossbar(aes(color = treatment_lvl),
-                    position = position_dodge(1)) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  f <- ggplot(estimators, aes(x = Estimator, y = ATE, color = treatment_lvl)) + 
+    geom_line() + 
+    geom_point() + 
+    geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci), width = 0.5)
+  
+  
+  f + theme_bw() + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), panel.grid.major.x = element_blank()) + 
     scale_x_discrete(labels=c(rep("Difference in means", 3), 
                               rep("OLS", 3), 
                               rep("IPW (logistic)", 3), 
@@ -280,7 +284,8 @@ plot_ATE_estimates <- function(estimators) {
                               rep("AIPW (forest-forest)", 3), 
                               rep("AIPW (ridge-ridge)", 3),
                               rep("AIPW ridge ridge", 3))) +
-    labs(color = "Matching Ratios") +
+    labs(color = "Matching ratios") +
+    ylab("Estimated ATE") + 
     scale_color_discrete(labels = c("1:1", "2:1", "3:1"))
 }
 
@@ -591,7 +596,20 @@ summarize_hte_results <- function(hte_results, comparison) {
   return(hte_summary)
 }
 
-# Test whether there are meaningful differences between high CATE and low CATE groups across covariates
+# Test whether there is a meaningful difference in doubly robust scores across high and low covariate groups
+test_covariate_hetero <- function(df, x_name, drs_name = "drs", x_type = "continuous") {
+  drs <- df[ , drs_name]
+  x <- df[ , x_name]
+  if (x_type == "continuous") {
+    high_idx <- x > median(x)
+    return(t.test(drs[!high_idx], drs[high_idx]))
+  } else {
+    pos_idx <- x == 1
+    return(t.test(drs[!pos_idx], drs[pos_idx]))
+  }
+}
+
+# Test whether there is a meaningful difference in covariate across high and low CATE groups
 test_CATE <- function(df, cate_name, x, variable = "continuous") {
   cate <- df %>% select(cate_name)
   x <- df %>% select(x)
@@ -633,7 +651,7 @@ compute_drs <- function(X, W, Y, cate, What, Yhat) {
 # This does not account for the treatment cost.
 estimate_binary_drs <- function(X_train, W_train, Y_train, cate_train, 
                                 X_new, W_new, Y_new, cate_new, 
-                                num_trees = 50) {
+                                num_trees = 50, compute_new = TRUE) {
   # Fit the outcome and propensity forests
   Y_forest <- regression_forest(X_train, Y_train, num.trees = num_trees)
   W_forest <- regression_forest(X_train, W_train, num.trees = num_trees)
@@ -641,16 +659,20 @@ estimate_binary_drs <- function(X_train, W_train, Y_train, cate_train,
   # Find Y and W estimates for the training set
   Yhat_train <- predict(Y_forest)$predictions # OOB
   What_train <- predict(W_forest)$predictions # OOB
-  
-  # Find Y and W estimates for the new data
-  Yhat_new <- predict(Y_forest, newdata = X_new)$predictions
-  What_new <- predict(W_forest, newdata = X_new)$predictions
-  
-  # Compute the doubly robust scores
+  # Doubly robust scores for the training set
   drs_train <- compute_drs(X_train, W_train, Y_train, cate_train, 
                            What_train, Yhat_train)
-  drs_new <- compute_drs(X_new, W_new, Y_new, cate_new, 
-                          What_new, Yhat_new)
+  
+  # Find Y and W estimates for the new data
+  # Also doubly robust scores
+  if (compute_new) {
+    Yhat_new <- predict(Y_forest, newdata = X_new)$predictions
+    What_new <- predict(W_forest, newdata = X_new)$predictions
+    drs_new <- compute_drs(X_new, W_new, Y_new, cate_new, 
+                           What_new, Yhat_new)
+  } else {
+    drs_new <- NULL
+  }
   return(list("train" = drs_train, "new" = drs_new))
 }
 

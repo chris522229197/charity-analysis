@@ -177,7 +177,7 @@ print(ate_results)
 print(ate_results_reduced)
 ```
 
-```{r plot_ATE_estimates, warning=FALSE, message=FALSE}
+```{r plot_ATE_estimates, warning=FALSE, message=FALSE, fig.width=9, fig.height=4}
 ate_results$Estimator <- factor(ate_results$Estimator, levels = ate_results$Estimator)
 ate_results_reduced$Estimator <- factor(ate_results_reduced$Estimator, levels = ate_results_reduced$Estimator)
 plot_ATE_estimates(ate_results)
@@ -235,15 +235,72 @@ plot_yx(hte_best_03$estimate, as.factor(hte_best_03$red0), "Estimated CATE (X-fo
 ```
 
 ```{r test_CATE, warning=FALSE, message=FALSE}
-test_CATE(hte_best_01, "estimate", "pblack", "continuous")
-test_CATE(hte_best_01, "estimate", "median_hhincome", "continuous")
-test_CATE(hte_best_01, "estimate", "red0", "factor")
+# Compute the doubly robust scores
+if (!file.exists("results/hte_best_01.rds")) {
+  drs_best_01 <- estimate_binary_drs(X_train = as.matrix(hte_best_01[ , covariate_names]), 
+                                     W_train = hte_best_01$W, 
+                                     Y_train = hte_best_01$Y, 
+                                     cate_train = hte_best_01$estimate, 
+                                     X_new = NULL, W_new = NULL, Y_new = NULL, cate_new = NULL, 
+                                     num_trees = NUM_TREES, compute_new = FALSE)
+  hte_best_01$drs <- drs_best_01$train
+  saveRDS(hte_best_01, file = "results/hte_best_01.rds")
+} else {
+  hte_best_01 <- readRDS("results/hte_best_01.rds")
+}
 
-test_CATE(hte_best_02, "estimate", "pblack", "continuous")
-test_CATE(hte_best_02, "estimate", "median_hhincome", "continuous")
-test_CATE(hte_best_02, "estimate", "red0", "factor")
+if (!file.exists("results/hte_best_02.rds")) {
+  drs_best_02 <- estimate_binary_drs(X_train = as.matrix(hte_best_02[ , covariate_names]), 
+                                     W_train = hte_best_02$W, 
+                                     Y_train = hte_best_02$Y, 
+                                     cate_train = hte_best_02$estimate, 
+                                     X_new = NULL, W_new = NULL, Y_new = NULL, cate_new = NULL, 
+                                     num_trees = NUM_TREES, compute_new = FALSE)
+  hte_best_02$drs <- drs_best_02$train
+  saveRDS(hte_best_02, file = "results/hte_best_02.rds")
+} else {
+  hte_best_02 <- readRDS("results/hte_best_02.rds")
+}
 
-test_CATE(hte_best_03, "estimate", "pblack", "continuous")
-test_CATE(hte_best_03, "estimate", "median_hhincome", "continuous")
-test_CATE(hte_best_03, "estimate", "red0", "factor")
+if (!file.exists("results/hte_best_03.rds")) {
+  drs_best_03 <- estimate_binary_drs(X_train = as.matrix(hte_best_03[ , covariate_names]), 
+                                     W_train = hte_best_03$W, 
+                                     Y_train = hte_best_03$Y, 
+                                     cate_train = hte_best_03$estimate, 
+                                     X_new = NULL, W_new = NULL, Y_new = NULL, cate_new = NULL, 
+                                     num_trees = NUM_TREES, compute_new = FALSE)
+  hte_best_03$drs <- drs_best_03$train
+  saveRDS(hte_best_03, file = "results/hte_best_03.rds")
+} else {
+  hte_best_03 <- readRDS("results/hte_best_03.rds")
+}
+
+# Formal hypothesis tests
+test_covs <- c("pblack", "median_hhincome", "red0")
+test_cov_types <- c("continuous", "continuous", "binary")
+df_lst <- list("0 vs 1" = hte_best_01, "0 vs 2" = hte_best_02, "0 vs 3" = hte_best_03)
+for (comparison in names(df_lst)) {
+  for (i in 1:length(test_covs)) {
+    cat(paste0("Comparison: ", comparison), "\n")
+    cat(paste0("Covariate: ", test_covs[i]), "\n")
+    t_test <- test_covariate_hetero(df = df_lst[[comparison]], 
+                                    x_name = test_covs[i], 
+                                    x_type = test_cov_types[i])
+    print(t_test)
+    cat("Corrected p-value: ", t_test$p.value / (length(test_covs) * length(df_lst)), "\n\n")
+  }
+  cat("\n\n\n")
+}
+
+# test_CATE(hte_best_01, "estimate", "pblack", "continuous")
+# test_CATE(hte_best_01, "estimate", "median_hhincome", "continuous")
+# test_CATE(hte_best_01, "estimate", "red0", "factor")
+# 
+# test_CATE(hte_best_02, "estimate", "pblack", "continuous")
+# test_CATE(hte_best_02, "estimate", "median_hhincome", "continuous")
+# test_CATE(hte_best_02, "estimate", "red0", "factor")
+# 
+# test_CATE(hte_best_03, "estimate", "pblack", "continuous")
+# test_CATE(hte_best_03, "estimate", "median_hhincome", "continuous")
+# test_CATE(hte_best_03, "estimate", "red0", "factor")
 ```
