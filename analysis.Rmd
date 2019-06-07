@@ -149,6 +149,22 @@ if (!file.exists("results/test_hetero_summary_03.rds")) {
 } else {
   test_hetero_summary_03 <- readRDS("results/test_hetero_summary_03.rds")
 }
+
+cat("Test for overall heterogeneity", "\n")
+cat("0 vs 1", "\n")
+test_hetero_summary_01$onesided_pval <- min(c(1, test_hetero_summary_01$onesided_pval * 3))
+print(test_hetero_summary_01)
+cat("\n\n")
+
+cat("0 vs 2", "\n")
+test_hetero_summary_02$onesided_pval <- min(c(1, test_hetero_summary_02$onesided_pval * 3))
+print(test_hetero_summary_02)
+cat("\n\n")
+
+cat("0 vs 3", "\n")
+test_hetero_summary_03$onesided_pval <- min(c(1, test_hetero_summary_03$onesided_pval * 3))
+print(test_hetero_summary_03)
+cat("\n\n")
 ```
 
 ```{r policy, warning=FALSE, message=FALSE}
